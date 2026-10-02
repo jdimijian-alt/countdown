@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Compte à rebours</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111827">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@600&family=Pacifico&family=Playfair+Display:wght@700&family=Press+Start+2P&family=Roboto+Mono:wght@500&display=swap">
+<style>
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:hidden}
+
+/* ---- Vue compteur ---- */
+#vue-compteur{position:relative;height:100dvh;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;will-change:transform,opacity}
+#btn-reglages{position:fixed;z-index:2;top:max(12px,env(safe-area-inset-top));right:14px;background:none;border:0;color:inherit;font-size:1.7rem;opacity:.55;cursor:pointer}
+.titre{font-size:clamp(1.4rem,6vw,3.2rem);font-weight:inherit;text-align:center;margin-bottom:.3em}
+.cible{font-family:system-ui,sans-serif;opacity:.7;font-size:clamp(.8rem,3vw,1.1rem);margin-bottom:2.2rem;text-align:center}
+.unites{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(.6rem,3vw,2.2rem)}
+.unite{display:flex;flex-direction:column;align-items:center}
+.valeur{display:flex;gap:.06em;font-size:var(--taille,5rem);line-height:1}
+.label{font-family:system-ui,sans-serif;font-size:clamp(.65rem,2.4vw,1rem);opacity:.7;margin-top:.6em;text-transform:uppercase;letter-spacing:.12em}
+.chiffre{display:inline-block;width:1ch;text-align:center}
+
+.style-sobre .chiffre.anim{animation:fondu .5s ease-out}
+@keyframes fondu{from{opacity:.15;transform:translateY(-.12em)}to{opacity:1;transform:none}}
+
+.style-flip .valeur{perspective:4em}
+.style-flip .chiffre{width:1.15ch;padding:.08em 0;border-radius:.1em;position:relative;background:color-mix(in srgb,currentColor 13%,transparent);box-shadow:0 .04em .1em rgba(0,0,0,.25)}
+.style-flip .chiffre::after{content:'';position:absolute;left:0;right:0;top:50%;height:.025em;background:color-mix(in srgb,currentColor 35%,transparent)}
+.style-flip .chiffre.anim{animation:flip .45s ease-out;transform-origin:50% 50%}
+@keyframes flip{from{transform:rotateX(-90deg)}to{transform:rotateX(0)}}
+
+.style-rouleau .chiffre{height:1.1em;overflow:hidden;line-height:1.1em}
+.style-rouleau .bande{display:flex;flex-direction:column;transition:transform .6s cubic-bezier(.3,1.35,.5,1)}
+.style-rouleau .bande span{height:1.1em}
+
+#points{position:fixed;z-index:2;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));display:flex;gap:10px}
+#points-vues{position:fixed;z-index:2;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px}
+.point{color:inherit;width:10px;height:10px;border-radius:50%;border:0;padding:0;background:currentColor;opacity:.3;cursor:pointer}
+.point.actif{opacity:.9}
+.vide{font-size:1.2rem;margin-bottom:1.2rem;opacity:.8}
+.message{font-size:clamp(1.1rem,4.5vw,2.4rem);margin-top:1.8rem;text-align:center;opacity:.9}
+
+/* ---- Jour J ---- */
+.fete{background:radial-gradient(ellipse at 50% 120%,#312e81,#0b1026 60%,#020617)!important;color:#fff}
+.fete canvas{position:absolute;inset:0;width:100%;height:100%}
+.fete-texte{position:relative;text-align:center;pointer-events:none;text-shadow:0 0 .4em rgba(0,0,0,.6)}
+.fete-nom{font-size:clamp(1.4rem,6vw,3.2rem);margin-bottom:.2em}
+.fete-msg{font-size:clamp(2.2rem,10vw,6.5rem);line-height:1.05;text-shadow:none;filter:drop-shadow(0 0 .12em rgba(0,0,0,.7));animation:pulse 1.6s ease-in-out infinite;background:linear-gradient(90deg,#fde047,#f472b6,#60a5fa,#fde047);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:pulse 1.6s ease-in-out infinite,degrade 6s linear infinite}
+@keyframes pulse{50%{transform:scale(1.06)}}
+@keyframes degrade{to{background-position:300% 0}}
+.fete .cible{margin:1rem 0 0}
+.btn-son{position:absolute;bottom:max(60px,calc(env(safe-area-inset-bottom) + 50px));left:50%;transform:translateX(-50%);background:#ffffff22;color:#fff;border:1px solid #ffffff55;border-radius:30px;padding:12px 22px;font-size:1.1rem;cursor:pointer;backdrop-filter:blur(4px)}
+
+/* ---- Vue réglages ---- */
+#vue-reglages{height:100dvh;overflow:auto;padding:max(16px,env(safe-area-inset-top)) 16px 40px;max-width:560px;margin:0 auto}
+#vue-reglages header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+#vue-reglages h2{font-size:1.3rem}
+.btn{background:#3b82f6;color:#fff;border:0;border-radius:8px;padding:10px 16px;font-size:1rem;cursor:pointer}
+.btn.secondaire{background:#374151}
+.btn-lien{background:none;border:0;color:#93c5fd;font-size:1rem;cursor:pointer;padding:6px 0;align-self:flex-start}
+#liste{list-style:none;padding:0;margin-bottom:16px}
+#liste li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;background:#1f2937;border-radius:8px;margin-bottom:8px;border-left:6px solid var(--c)}
+#liste li.passe{opacity:.45}
+#liste small{display:block;opacity:.7;margin-top:2px}
+#liste li button{background:none;border:0;color:#93c5fd;cursor:pointer;font-size:.9rem;padding:4px}
+#formulaire{background:#1f2937;border-radius:10px;padding:16px;margin-top:16px;display:flex;flex-direction:column;gap:14px}
+#formulaire label{display:flex;flex-direction:column;gap:4px;font-size:.9rem}
+#formulaire input:not([type=checkbox]):not([type=radio]):not([type=range]),#formulaire select{background:#111827;color:#f9fafb;border:1px solid #374151;border-radius:6px;padding:8px;font-size:1rem}
+#formulaire input[type=color]{height:42px;padding:2px}
+#formulaire fieldset{border:1px solid #374151;border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:10px}
+#formulaire legend{font-size:.9rem;padding:0 4px}
+.groupe{display:flex;flex-wrap:wrap;gap:6px 16px}
+.groupe-titre{font-size:.8rem;opacity:.7;width:100%}
+#formulaire .groupe label{flex-direction:row;align-items:center;gap:6px;font-size:1rem}
+.ligne{display:flex;gap:10px}.ligne>label{flex:1}
+.actions{display:flex;justify-content:flex-end;gap:10px}
+.erreur{color:#f87171;font-size:.9rem;min-height:1em}
+.aide{font-size:.8rem;opacity:.6}
+</style>
+</head>
+<body>
+
+<main id="vue-compteur">
+  <button id="btn-reglages" aria-label="Réglages">⚙</button>
+  <nav id="points"></nav>
+  <nav id="points-vues"></nav>
+</main>
+
+<section id="vue-reglages" hidden>
+  <header><button id="btn-retour" class="btn-lien">← Retour</button><h2>Mes compteurs</h2></header>
+  <ul id="liste"></ul>
+  <button id="btn-ajouter" class="btn">+ Nouveau compteur</button>
+  <form id="formulaire" hidden novalidate>
+    <h3 id="titre-form">Nouveau compteur</h3>
+    <label>Nom<input name="nom" maxlength="60" placeholder="Départ à la retraite"></label>
+    <div class="ligne">
+      <label>Date<input type="date" name="date"></label>
+      <label>Heure<input type="time" name="heure" value="00:00"></label>
+    </div>
+    <div class="ligne">
+      <label>Police<select name="police"></select></label>
+      <label>Couleur de fond<input type="color" name="fond" value="#1f2937"></label>
+    </div>
+    <label>Message (affiché sous les chiffres)<input name="message" maxlength="80" placeholder="…avant la retraite !"></label>
+    <div id="vues-editeur"></div>
+    <button type="button" id="btn-ajout-vue" class="btn-lien">+ Ajouter une vue</button>
+    <p class="aide">Toucher l'écran (ou ↑ ↓) pour changer de vue, balayer (ou ← →) pour changer de compteur. La plus grande unité cochée affiche le total.</p>
+    <fieldset><legend>Transition</legend>
+      <div class="ligne">
+        <label>Type<select name="transType">
+          <option value="glissement">Glissement</option>
+          <option value="fondu">Fondu</option>
+          <option value="zoom">Zoom</option>
+          <option value="aucune">Aucune</option>
+        </select></label>
+        <label>Durée : <output id="duree-aff"></output><input type="range" name="transDuree" min="0.2" max="3" step="0.1" value="0.6"></label>
+      </div>
+    </fieldset>
+    <fieldset><legend>Jour J</legend>
+      <label>Message<input name="feteMsg" maxlength="60" placeholder="C'est le grand jour !"></label>
+      <div class="ligne">
+        <label>Musique<select name="musique">
+          <option value="marseillaise">La Marseillaise</option>
+          <option value="anniversaire">Joyeux anniversaire</option>
+          <option value="aucune">Aucune</option>
+        </select></label>
+        <label>Durée de la fête<select name="feteDuree">
+          <option value="minuit">Jusqu'à minuit</option>
+          <option value="1h">1 heure</option>
+          <option value="24h">24 heures</option>
+        </select></label>
+      </div>
+      <button type="button" id="btn-apercu" class="btn-lien">▶ Aperçu de la fête</button>
+    </fieldset>
+    <p id="erreur" class="erreur"></p>
+    <div class="actions">
+      <button type="button" id="btn-annuler" class="btn secondaire">Annuler</button>
+      <button type="submit" class="btn">Enregistrer</button>
+    </div>
+  </form>
+</section>
+
+<script>
+const CLE = 'compteurs.v1';
+const POLICES = {
+  'Bebas Neue': "'Bebas Neue',sans-serif",
+  'Orbitron': "'Orbitron',sans-serif",
+  'Roboto Mono': "'Roboto Mono',monospace",
+  'Playfair Display': "'Playfair Display',serif",
+  'Pacifico': "'Pacifico',cursive",
+  'Press Start 2P': "'Press Start 2P',monospace",
+  'Système': "system-ui,sans-serif"
+};
+const STYLES = { flip: 'Palettes', rouleau: 'Rouleau', sobre: 'Sobre' };
+const UNITES = [
+  { k: 'an',      s: 'an',      p: 'ans' },
+  { k: 'mois',    s: 'mois',    p: 'mois' },
+  { k: 'jour',    s: 'jour',    p: 'jours',    ms: 864e5 },
+  { k: 'heure',   s: 'heure',   p: 'heures',   ms: 36e5 },
+  { k: 'minute',  s: 'minute',  p: 'minutes',  ms: 6e4 },
+  { k: 'seconde', s: 'seconde', p: 'secondes', ms: 1e3 }
+];
+const VUE_DEFAUT = { unites: ['jour', 'heure', 'minute', 'seconde'], style: 'flip' };
+const TRANS_DEFAUT = { type: 'glissement', duree: 600 };
+const FETE_DEFAUT = { message: '', musique: 'marseillaise', duree: 'minuit' };
+const $ = s => document.querySelector(s);
+
+let compteurs = charger();
+let courantId = null, vueIdx = 0;
+let apercu = null;        // { c, fin } : aperçu de la fête lancé depuis le formulaire
+let etat = null;          // compteur + vue affichés, éléments DOM par unité
+let sceneActuelle = null;
+let editionId = null;
+
+// ---------- Stockage (avec migration de l'ancien format) ----------
+function charger() {
+  let l; try { l = JSON.parse(localStorage.getItem(CLE)) || []; } catch { l = []; }
+  return l.map(c => {
+    if (!c.vues) { c.vues = [{ unites: c.unites || VUE_DEFAUT.unites, style: c.style || 'flip' }]; delete c.unites; delete c.style; }
+    if (!c.transition) c.transition = { ...TRANS_DEFAUT };
+    if (c.message === undefined) c.message = '';
+    if (!c.fete) c.fete = { ...FETE_DEFAUT };
+    return c;
+  });
+}
+function sauver() { localStorage.setItem(CLE, JSON.stringify(compteurs)); }
+
+// ---------- Calcul ----------
+function ajouterMois(d, n) {
+  const x = new Date(d.getTime()), j = x.getDate();
+  x.setDate(1); x.setMonth(x.getMonth() + n);
+  x.setDate(Math.min(j, new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate()));
+  return x;
+}
+function decomposer(de, a, choix) {
+  const r = {};
+  let cur = new Date(de);
+  for (const [k, pas] of [['an', 12], ['mois', 1]]) {
+    if (!choix.includes(k)) continue;
+    const ecart = (a.getFullYear() - cur.getFullYear()) * 12 + a.getMonth() - cur.getMonth();
+    let n = Math.max(0, Math.floor((ecart - 1) / pas));
+    while (n > 0 && ajouterMois(cur, pas * n) > a) n--;
+    while (ajouterMois(cur, pas * (n + 1)) <= a) n++;
+    r[k] = n; cur = ajouterMois(cur, pas * n);
+  }
+  let reste = a - cur;
+  for (const u of UNITES) if (u.ms && choix.includes(u.k)) {
+    r[u.k] = Math.floor(reste / u.ms); reste -= r[u.k] * u.ms;
+  }
+  return r;
+}
+// Fin de la fête : 1 h, 24 h, ou minuit du jour J (au moins 1 h)
+function finFete(c) {
+  const t = new Date(c.cible).getTime();
+  if (c.fete.duree === '1h') return t + 36e5;
+  if (c.fete.duree === '24h') return t + 864e5;
+  const m = new Date(c.cible); m.setHours(24, 0, 0, 0);
+  return Math.max(m.getTime(), t + 36e5);
+}
+const enFete = (c, t = Date.now()) => t >= new Date(c.cible) && t < finFete(c);
+function actifs() {
+  const t = Date.now();
+  return compteurs.filter(c => finFete(c) > t).sort((x, y) => new Date(x.cible) - new Date(y.cible));
+}
+
+// ---------- Utilitaires ----------
+function formatDate(s) {
+  return new Date(s).toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+function couleurTexte(hex) {
+  const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.6 ? '#111827' : '#f9fafb';
+}
+function nouvelId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+const secondes = ms => (ms / 1000).toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' s';
+
+// ---------- Affichage ----------
+// dir : null (pas d'animation) ou { axe: 'x'|'y', sens: 1|-1 }
+function construire(dir = null) {
+  const liste = actifs(), vue = $('#vue-compteur');
+  const ancienne = sceneActuelle;
+  const scene = document.createElement('div');
+  scene.className = 'scene';
+  let c = null;
+  arreterFete();
+
+  if (apercu || (liste.length && enFete(liste.find(x => x.id === courantId) || liste[0]))) {
+    c = apercu ? apercu.c : (liste.find(x => x.id === courantId) || liste[0]);
+    if (!apercu) courantId = c.id;
+    construireFete(scene, c);
+    vue.style.color = '#fff';
+  } else if (!liste.length) {
+    courantId = null; etat = null;
+    scene.style.background = '#111827'; vue.style.color = '#f9fafb';
+    scene.innerHTML = '<p class="vide">Aucun compte à rebours à venir.</p><button class="btn" data-creer>Créer un compteur</button>';
+    scene.querySelector('[data-creer]').onclick = () => ouvrirReglages(true);
+  } else {
+    c = liste.find(x => x.id === courantId) || liste[0];
+    if (c.id !== courantId) vueIdx = 0;
+    courantId = c.id;
+    vueIdx = ((vueIdx % c.vues.length) + c.vues.length) % c.vues.length;
+    const v = c.vues[vueIdx];
+    scene.classList.add('style-' + v.style);
+    scene.style.background = c.fond;
+    scene.style.fontFamily = POLICES[c.police] || POLICES['Système'];
+    vue.style.color = couleurTexte(c.fond);
+    scene.innerHTML = '<h1 class="titre"></h1><p class="cible"></p><div class="unites"></div><p class="message"></p>';
+    scene.querySelector('.titre').textContent = c.nom;
+    scene.querySelector('.cible').textContent = formatDate(c.cible);
+    scene.querySelector('.message').textContent = c.message || '';
+    etat = { c, v, scene, unites: {} };
+    const box = scene.querySelector('.unites');
+    for (const u of UNITES) if (v.unites.includes(u.k)) {
+      const el = document.createElement('div');
+      el.className = 'unite';
+      el.innerHTML = '<div class="valeur"></div><div class="label"></div>';
+      box.append(el);
+      etat.unites[u.k] = { el, u, txt: null };
+    }
+  }
+  vue.insertBefore(scene, $('#btn-reglages'));
+  sceneActuelle = scene;
+  vue.style.background = scene.style.background;
+  maj();
+  animer(ancienne, scene, dir, c ? c.transition : TRANS_DEFAUT);
+  dessinerPoints(apercu ? [] : liste, etat && !etat.fete ? c : null);
+  if (etat && etat.fete) demarrerFete(scene, c);
+}
+
+// ---------- Jour J : feu d'artifice + musique ----------
+function construireFete(scene, c) {
+  scene.classList.add('fete');
+  scene.style.fontFamily = POLICES[c.police] || POLICES['Système'];
+  scene.innerHTML = `<canvas></canvas><div class="fete-texte"><p class="fete-nom"></p><h1 class="fete-msg"></h1><p class="cible"></p></div>
+    <button class="btn-son" hidden>🔊 Lancer la musique</button>`;
+  scene.querySelector('.fete-nom').textContent = c.nom;
+  scene.querySelector('.fete-msg').textContent = c.fete.message || "C'est le grand jour !";
+  scene.querySelector('.cible').textContent = formatDate(c.cible);
+  etat = { c, fete: true, scene };
+}
+
+let feu = null;
+function demarrerFete(scene, c) {
+  feu = new FeuArtifice(scene.querySelector('canvas'));
+  const btn = scene.querySelector('.btn-son');
+  if (c.fete.musique === 'aucune') return;
+  const ac = audio();
+  if (ac && ac.state === 'running') jouerMelodie(c.fete.musique);
+  else if (ac) { btn.hidden = false; btn.onclick = () => { ac.resume().then(() => { btn.hidden = true; jouerMelodie(c.fete.musique); }); }; }
+}
+function arreterFete() { if (feu) { feu.stop(); feu = null; } arreterMusique(); }
+function toucherFete() {
+  const ac = audio();
+  if (!ac || etat.c.fete.musique === 'aucune') return;
+  ac.resume().then(() => { const b = etat.scene.querySelector('.btn-son'); if (b) b.hidden = true; jouerMelodie(etat.c.fete.musique); });
+}
+
+class FeuArtifice {
+  constructor(cv) {
+    this.cv = cv; this.ctx = cv.getContext('2d');
+    this.fusees = []; this.part = []; this.actif = true; this.prochain = 0;
+    this.taille(); this.onResize = () => this.taille();
+    addEventListener('resize', this.onResize);
+    requestAnimationFrame(t => this.boucle(t));
+  }
+  taille() {
+    const r = devicePixelRatio || 1;
+    this.w = this.cv.clientWidth || innerWidth; this.h = this.cv.clientHeight || innerHeight;
+    this.cv.width = this.w * r; this.cv.height = this.h * r;
+    this.ctx.setTransform(r, 0, 0, r, 0, 0);
+  }
+  lancer() {
+    const x = this.w * (0.15 + Math.random() * 0.7);
+    const hautCible = this.h * (0.12 + Math.random() * 0.35);
+    this.fusees.push({ x, y: this.h, px: x, py: this.h, vx: (Math.random() - .5) * 1.5,
+      vy: -Math.sqrt(2 * 0.12 * (this.h - hautCible)), teinte: Math.random() * 360 });
+  }
+  exploser(f) {
+    const n = 60 + Math.random() * 50 | 0, v = 2 + Math.random() * 3, double = Math.random() < .3;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + Math.random() * .1, s = v * (0.6 + Math.random() * 0.5);
+      this.part.push({ x: f.x, y: f.y, px: f.x, py: f.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s,
+        vie: 1, decay: 0.008 + Math.random() * 0.01,
+        teinte: double && i % 2 ? (f.teinte + 180) % 360 : f.teinte + Math.random() * 30 });
+    }
+    boum();
+  }
+  boucle(t) {
+    if (!this.actif) return;
+    const c = this.ctx;
+    c.clearRect(0, 0, this.w, this.h);
+    if (t > this.prochain && this.part.length < 1500) {
+      this.lancer(); if (Math.random() < .25) this.lancer();
+      this.prochain = t + 350 + Math.random() * 700;
+    }
+    c.globalCompositeOperation = 'lighter'; c.lineCap = 'round';
+    this.fusees = this.fusees.filter(f => {
+      f.px = f.x; f.py = f.y; f.x += f.vx; f.y += f.vy; f.vy += 0.12;
+      c.strokeStyle = `hsla(${f.teinte},100%,80%,1)`; c.lineWidth = 2.5;
+      c.beginPath(); c.moveTo(f.px, f.py + 6); c.lineTo(f.x, f.y); c.stroke();
+      if (f.vy >= -0.5) { this.exploser(f); return false; }
+      return true;
+    });
+    this.part = this.part.filter(p => {
+      p.px = p.x; p.py = p.y; p.vx *= 0.985; p.vy = p.vy * 0.985 + 0.04;
+      p.x += p.vx; p.y += p.vy; p.vie -= p.decay;
+      c.strokeStyle = `hsla(${p.teinte},100%,${55 + p.vie * 25}%,${p.vie})`; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(p.px - p.vx * 2, p.py - p.vy * 2); c.lineTo(p.x, p.y); c.stroke();
+      return p.vie > 0;
+    });
+    c.globalCompositeOperation = 'source-over';
+    requestAnimationFrame(t2 => this.boucle(t2));
+  }
+  stop() { this.actif = false; removeEventListener('resize', this.onResize); }
+}
+
+// --- Audio (synthétisé, aucun fichier) ---
+let ac = null, musique = null;
+function audio() {
+  if (!ac) { const A = window.AudioContext || window.webkitAudioContext; if (A) ac = new A(); }
+  return ac;
+}
+// Le navigateur exige une interaction avant de jouer du son : on débloque au premier geste
+['pointerdown', 'keydown'].forEach(ev => addEventListener(ev, () => { const a = audio(); if (a && a.state !== 'running') a.resume(); }, { capture: true }));
+
+function freq(n) {
+  const m = n.match(/^([A-G])(#|b)?(\d)$/);
+  const base = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0);
+  return 440 * Math.pow(2, (base + (+m[3] + 1) * 12 - 69) / 12);
+}
+const MELODIES = {
+  // Début de La Marseillaise (sol majeur)
+  marseillaise: { tempo: 100, notes: [
+    ['D4', .75], ['D4', .25],
+    ['G4', 1], ['G4', 1], ['A4', 1], ['A4', 1],
+    ['D5', 1.5], ['B4', .5], ['G4', .75], ['G4', .25], ['B4', .75], ['G4', .25],
+    ['E4', 1], ['C5', 2], ['A4', .75], ['F#4', .25],
+    ['G4', 3]], accord: ['G3', 'B3', 'D4', 'G4'] },
+  anniversaire: { tempo: 120, notes: [
+    ['G4', .75], ['G4', .25], ['A4', 1], ['G4', 1], ['C5', 1], ['B4', 2],
+    ['G4', .75], ['G4', .25], ['A4', 1], ['G4', 1], ['D5', 1], ['C5', 2],
+    ['G4', .75], ['G4', .25], ['G5', 1], ['E5', 1], ['C5', 1], ['B4', 1], ['A4', 2],
+    ['F5', .75], ['F5', .25], ['E5', 1], ['C5', 1], ['D5', 1], ['C5', 3]], accord: ['C4', 'E4', 'G4', 'C5'] }
+};
+function jouerMelodie(nom) {
+  const m = MELODIES[nom], a = audio();
+  if (!m || !a) return;
+  arreterMusique();
+  const sortie = a.createGain(); sortie.gain.value = 0.5;
+  const filtre = a.createBiquadFilter(); filtre.type = 'lowpass'; filtre.frequency.value = 2800;
+  filtre.connect(sortie); sortie.connect(a.destination);
+  musique = sortie;
+  const noire = 60 / m.tempo;
+  let t = a.currentTime + 0.1;
+  const note = (n, debut, dur, vol) => {
+    for (const [type, mult, v] of [['square', 1, 0.10], ['triangle', 0.5, 0.18]]) {
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = type; o.frequency.value = freq(n) * mult;
+      g.gain.setValueAtTime(0, debut);
+      g.gain.linearRampToValueAtTime(v * vol, debut + 0.02);
+      g.gain.setValueAtTime(v * vol, debut + dur * 0.75);
+      g.gain.linearRampToValueAtTime(0, debut + dur * 0.95);
+      o.connect(g); g.connect(filtre); o.start(debut); o.stop(debut + dur);
+    }
+  };
+  for (const [n, b] of m.notes) { if (n) note(n, t, b * noire, 1); t += b * noire; }
+  for (const n of m.accord) note(n, t, noire * 3, 0.5);
+}
+function arreterMusique() {
+  if (!musique) return;
+  const g = musique; musique = null;
+  try { g.gain.setTargetAtTime(0, ac.currentTime, 0.1); setTimeout(() => g.disconnect(), 500); } catch {}
+}
+function boum() {
+  const a = ac;
+  if (!a || a.state !== 'running') return;
+  const n = a.sampleRate * 0.6, buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3);
+  const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+  s.buffer = buf; f.type = 'lowpass'; f.frequency.value = 300 + Math.random() * 500;
+  g.gain.value = 0.15 + Math.random() * 0.15;
+  s.connect(f); f.connect(g); g.connect(a.destination); s.start();
+}
+
+function animer(ancienne, nouvelle, dir, t) {
+  if (!ancienne) return;
+  if (!dir || t.type === 'aucune' || !t.duree || !nouvelle.animate) { ancienne.remove(); return; }
+  const opts = { duration: t.duree, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'both' };
+  let kIn, kOut;
+  if (t.type === 'fondu') {
+    kIn = [{ opacity: 0 }, { opacity: 1 }];
+    kOut = [{ opacity: 1 }, { opacity: 0 }];
+  } else if (t.type === 'zoom') {
+    kIn = [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'none' }];
+    kOut = [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.4)' }];
+  } else {
+    const a = dir.axe === 'y' ? 'Y' : 'X', s = dir.sens;
+    kIn = [{ transform: `translate${a}(${100 * s}%)` }, { transform: 'none' }];
+    kOut = [{ transform: 'none' }, { transform: `translate${a}(${-100 * s}%)` }];
+  }
+  ancienne.style.pointerEvents = 'none';
+  nouvelle.animate(kIn, opts);
+  ancienne.animate(kOut, opts).onfinish = () => ancienne.remove();
+}
+
+function creerChiffre(d) {
+  const sp = document.createElement('span');
+  sp.className = 'chiffre';
+  if (etat.v.style === 'rouleau') {
+    const bande = document.createElement('span');
+    bande.className = 'bande';
+    for (let i = 0; i < 10; i++) { const s = document.createElement('span'); s.textContent = i; bande.append(s); }
+    bande.style.transform = `translateY(-${d * 1.1}em)`;
+    sp.append(bande);
+  } else sp.textContent = d;
+  return sp;
+}
+function changerChiffre(sp, d) {
+  if (etat.v.style === 'rouleau') { sp.firstChild.style.transform = `translateY(-${d * 1.1}em)`; return; }
+  sp.textContent = d;
+  sp.classList.remove('anim'); void sp.offsetWidth; sp.classList.add('anim');
+}
+
+function maj() {
+  if (!etat) return;
+  if (etat.fete) {
+    const fini = apercu ? Date.now() > apercu.fin : !enFete(etat.c);
+    if (fini) { if (apercu) finApercu(); else construire({ axe: 'y', sens: 1 }); }
+    return;
+  }
+  const cible = new Date(etat.c.cible);
+  if (cible <= Date.now()) { construire({ axe: 'y', sens: 1 }); return; }
+  const r = decomposer(new Date(), cible, etat.v.unites);
+  let nbChiffres = 0;
+  for (const k in etat.unites) {
+    const o = etat.unites[k], v = r[k], txt = String(v).padStart(2, '0');
+    o.el.querySelector('.label').textContent = v > 1 ? o.u.p : o.u.s;
+    const val = o.el.querySelector('.valeur');
+    if (o.txt === null || o.txt.length !== txt.length) {
+      val.innerHTML = '';
+      for (const ch of txt) val.append(creerChiffre(+ch));
+    } else if (o.txt !== txt) {
+      for (let i = 0; i < txt.length; i++) if (txt[i] !== o.txt[i]) changerChiffre(val.children[i], +txt[i]);
+    }
+    o.txt = txt; nbChiffres += txt.length;
+  }
+  const nbUnites = Object.keys(etat.unites).length;
+  const vw = 88 / (nbChiffres * 0.85 + (nbUnites - 1) * 0.6);
+  etat.scene.style.setProperty('--taille', `min(10rem, ${vw.toFixed(2)}vw, 24vh)`);
+}
+
+function dessinerPoints(liste, c) {
+  const nav = $('#points'), navV = $('#points-vues');
+  nav.innerHTML = ''; navV.innerHTML = '';
+  if (liste.length > 1) liste.forEach((x, i) => {
+    const b = document.createElement('button');
+    b.className = 'point' + (x.id === courantId ? ' actif' : '');
+    b.setAttribute('aria-label', x.nom);
+    b.onclick = () => {
+      const cur = liste.findIndex(y => y.id === courantId);
+      if (i === cur) return;
+      courantId = x.id; vueIdx = 0;
+      construire({ axe: 'x', sens: i > cur ? 1 : -1 });
+    };
+    nav.append(b);
+  });
+  if (c && c.vues.length > 1) c.vues.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'point' + (i === vueIdx ? ' actif' : '');
+    b.setAttribute('aria-label', 'Vue ' + (i + 1));
+    b.onclick = () => { if (i === vueIdx) return; const s = i > vueIdx ? 1 : -1; vueIdx = i; construire({ axe: 'y', sens: s }); };
+    navV.append(b);
+  });
+}
+
+function changerCompteur(delta) {
+  const liste = actifs();
+  if (apercu) { finApercu(); return; }
+  if (liste.length < 2) return;
+  const i = liste.findIndex(c => c.id === courantId);
+  courantId = liste[(i + delta + liste.length) % liste.length].id;
+  vueIdx = 0;
+  construire({ axe: 'x', sens: delta });
+}
+function changerVue(delta) {
+  if (!etat || etat.fete || etat.c.vues.length < 2) return;
+  vueIdx += delta;
+  construire({ axe: 'y', sens: delta });
+}
+
+// Toucher = vue suivante ; balayage horizontal = compteur ; vertical = vue
+let p0 = null;
+$('#vue-compteur').addEventListener('pointerdown', e => {
+  p0 = e.target.closest('button') ? null : { x: e.clientX, y: e.clientY };
+});
+$('#vue-compteur').addEventListener('pointerup', e => {
+  if (!p0) return;
+  const dx = e.clientX - p0.x, dy = e.clientY - p0.y; p0 = null;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) changerCompteur(dx < 0 ? 1 : -1);
+  else if (Math.abs(dy) > 50) changerVue(dy < 0 ? 1 : -1);
+  else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { if (etat && etat.fete) toucherFete(); else changerVue(1); }
+});
+document.addEventListener('keydown', e => {
+  if (!$('#vue-reglages').hidden) return;
+  if (e.key === 'ArrowRight') changerCompteur(1);
+  if (e.key === 'ArrowLeft') changerCompteur(-1);
+  if (e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); changerVue(1); }
+  if (e.key === 'ArrowUp') changerVue(-1);
+});
+
+// ---------- Réglages ----------
+function ouvrirReglages(nouveau) {
+  apercu = null; arreterFete();
+  $('#vue-compteur').hidden = true;
+  $('#vue-reglages').hidden = false;
+  dessinerListe();
+  if (nouveau) ouvrirFormulaire(null); else fermerFormulaire();
+}
+function fermerReglages() {
+  $('#vue-reglages').hidden = true;
+  $('#vue-compteur').hidden = false;
+  construire(null);
+}
+function dessinerListe() {
+  const ul = $('#liste'), t = Date.now();
+  ul.innerHTML = '';
+  const tries = [...compteurs].sort((x, y) => new Date(x.cible) - new Date(y.cible));
+  if (!tries.length) { ul.innerHTML = '<li>Aucun compteur.</li>'; return; }
+  for (const c of tries) {
+    const li = document.createElement('li');
+    if (finFete(c) <= t) li.className = 'passe';
+    li.style.setProperty('--c', c.fond);
+    li.innerHTML = '<div><strong></strong><small></small></div><div><button data-a="mod">Modifier</button><button data-a="sup">Supprimer</button></div>';
+    li.querySelector('strong').textContent = c.nom;
+    const nbV = c.vues.length > 1 ? ` · ${c.vues.length} vues` : '';
+    li.querySelector('small').textContent = formatDate(c.cible) + nbV + (li.className ? ' — terminé' : enFete(c, t) ? ' — 🎉 en fête' : '');
+    li.querySelector('[data-a=mod]').onclick = () => ouvrirFormulaire(c);
+    li.querySelector('[data-a=sup]').onclick = () => {
+      if (!confirm(`Supprimer « ${c.nom} » ?`)) return;
+      compteurs = compteurs.filter(x => x.id !== c.id); sauver(); dessinerListe();
+      if (editionId === c.id) fermerFormulaire();
+    };
+    ul.append(li);
+  }
+}
+
+// Éditeur de vues
+let uidVue = 0;
+function ajouterBlocVue(v) {
+  const id = 'v' + (uidVue++);
+  const fs = document.createElement('fieldset');
+  fs.className = 'bloc-vue';
+  fs.innerHTML = `<legend></legend>
+    <div class="groupe"><span class="groupe-titre">Animation des chiffres</span>${
+      Object.entries(STYLES).map(([k, n]) => `<label><input type="radio" name="style-${id}" value="${k}"${k === v.style ? ' checked' : ''}>${n}</label>`).join('')}</div>
+    <div class="groupe"><span class="groupe-titre">Unités</span>${
+      UNITES.map(u => `<label><input type="checkbox" value="${u.k}"${v.unites.includes(u.k) ? ' checked' : ''}>${u.p}</label>`).join('')}</div>
+    <button type="button" class="btn-lien" data-suppr>Supprimer cette vue</button>`;
+  fs.querySelector('[data-suppr]').onclick = () => { fs.remove(); numeroterVues(); };
+  $('#vues-editeur').append(fs);
+  numeroterVues();
+}
+function numeroterVues() {
+  const blocs = document.querySelectorAll('.bloc-vue');
+  blocs.forEach((b, i) => {
+    b.querySelector('legend').textContent = 'Vue ' + (i + 1);
+    b.querySelector('[data-suppr]').hidden = blocs.length < 2;
+  });
+}
+
+(function initFormulaire() {
+  const f = $('#formulaire');
+  for (const p in POLICES) {
+    const o = document.createElement('option');
+    o.value = p; o.textContent = p; o.style.fontFamily = POLICES[p];
+    f.police.append(o);
+  }
+  f.transDuree.oninput = () => $('#duree-aff').textContent = secondes(f.transDuree.value * 1000);
+})();
+
+function ouvrirFormulaire(c) {
+  const f = $('#formulaire');
+  editionId = c ? c.id : null;
+  $('#titre-form').textContent = c ? 'Modifier le compteur' : 'Nouveau compteur';
+  f.nom.value = c ? c.nom : '';
+  f.date.value = c ? c.cible.slice(0, 10) : '';
+  f.heure.value = c ? c.cible.slice(11, 16) : '00:00';
+  f.police.value = c ? c.police : 'Bebas Neue';
+  f.fond.value = c ? c.fond : '#1f2937';
+  f.message.value = c ? c.message : '';
+  const fe = c ? c.fete : FETE_DEFAUT;
+  f.feteMsg.value = fe.message; f.musique.value = fe.musique; f.feteDuree.value = fe.duree;
+  $('#vues-editeur').innerHTML = '';
+  (c ? c.vues : [VUE_DEFAUT]).forEach(ajouterBlocVue);
+  const t = c ? c.transition : TRANS_DEFAUT;
+  f.transType.value = t.type;
+  f.transDuree.value = t.duree / 1000;
+  f.transDuree.oninput();
+  $('#erreur').textContent = '';
+  f.hidden = false; $('#btn-ajouter').hidden = true;
+  f.nom.focus();
+}
+function fermerFormulaire() {
+  $('#formulaire').hidden = true; $('#btn-ajouter').hidden = false; editionId = null;
+}
+
+$('#formulaire').addEventListener('submit', e => {
+  e.preventDefault();
+  const f = e.target, err = $('#erreur');
+  const nom = f.nom.value.trim();
+  const cible = `${f.date.value}T${f.heure.value || '00:00'}`;
+  const vues = [...document.querySelectorAll('.bloc-vue')].map(b => ({
+    style: b.querySelector('input[type=radio]:checked')?.value || 'flip',
+    unites: [...b.querySelectorAll('input[type=checkbox]:checked')].map(cb => cb.value)
+  }));
+  if (!nom) return err.textContent = 'Nom obligatoire.';
+  if (!f.date.value) return err.textContent = 'Date obligatoire.';
+  const vide = vues.findIndex(v => !v.unites.length);
+  if (vide >= 0) return err.textContent = `Vue ${vide + 1} : cocher au moins une unité.`;
+  const c = lireFormulaire();
+  c.vues = vues;
+  if (finFete(c) <= Date.now()) return err.textContent = 'Cette date est déjà passée.';
+  const i = compteurs.findIndex(x => x.id === c.id);
+  if (i >= 0) compteurs[i] = c; else compteurs.push(c);
+  sauver();
+  courantId = c.id; vueIdx = 0;
+  fermerFormulaire(); dessinerListe();
+});
+
+function lireFormulaire() {
+  const f = $('#formulaire');
+  return {
+    id: editionId || nouvelId(), nom: f.nom.value.trim() || 'Aperçu',
+    cible: `${f.date.value || new Date().toISOString().slice(0, 10)}T${f.heure.value || '00:00'}`,
+    police: f.police.value, fond: f.fond.value, message: f.message.value.trim(), vues: [VUE_DEFAUT],
+    transition: { type: f.transType.value, duree: Math.round(f.transDuree.value * 1000) },
+    fete: { message: f.feteMsg.value.trim(), musique: f.musique.value, duree: f.feteDuree.value }
+  };
+}
+$('#btn-apercu').onclick = () => {
+  audio()?.resume();
+  const c = lireFormulaire();
+  $('#vue-reglages').hidden = true; $('#vue-compteur').hidden = false;
+  apercu = { c, fin: Date.now() + 20000 };
+  construire(null);
+};
+
+// Fin d'aperçu : retour au formulaire tel qu'il était
+function finApercu() {
+  apercu = null; arreterFete(); etat = null;
+  $('#vue-compteur').hidden = true; $('#vue-reglages').hidden = false;
+}
+$('#btn-reglages').onclick = () => apercu ? finApercu() : ouvrirReglages(false);
+$('#btn-retour').onclick = fermerReglages;
+$('#btn-ajouter').onclick = () => ouvrirFormulaire(null);
+$('#btn-annuler').onclick = fermerFormulaire;
+$('#btn-ajout-vue').onclick = () => ajouterBlocVue({ unites: ['jour'], style: 'sobre' });
+
+// ---------- Démarrage ----------
+construire(null);
+(function boucle() { maj(); setTimeout(boucle, 1000 - (Date.now() % 1000) + 10); })();
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
