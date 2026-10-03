@@ -26,8 +26,8 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
 #btn-reglages{position:fixed;z-index:2;top:max(12px,env(safe-area-inset-top));right:14px;background:none;border:0;color:inherit;font-size:1.7rem;opacity:.55;cursor:pointer}
 .titre{font-size:clamp(1.4rem,6vw,3.2rem);font-weight:inherit;text-align:center;margin-bottom:.3em}
 .cible{font-family:system-ui,sans-serif;opacity:.7;font-size:clamp(.8rem,3vw,1.1rem);margin-bottom:2.2rem;text-align:center}
-.unites{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(.6rem,3vw,2.2rem)}
-.unite{display:flex;flex-direction:column;align-items:center}
+.unites{display:flex;flex-wrap:wrap;justify-content:center;column-gap:var(--gap,3vw);row-gap:1rem;width:100%}
+.unite{display:flex;flex-direction:column;align-items:center;flex:0 0 calc((100% - (var(--cols,6) - 1) * var(--gap,3vw)) / var(--cols,6))}
 .valeur{display:flex;gap:.06em;font-size:var(--taille,5rem);line-height:1}
 .label{font-family:system-ui,sans-serif;font-size:clamp(.65rem,2.4vw,1rem);opacity:.7;margin-top:.6em;text-transform:uppercase;letter-spacing:.12em}
 .chiffre{display:inline-block;width:1ch;text-align:center}
@@ -56,7 +56,17 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
 /* ---- Jour J ---- */
 .fete{background:radial-gradient(ellipse at 50% 120%,#312e81,#0b1026 60%,#020617)!important;color:#fff}
 .fete canvas{position:absolute;inset:0;width:100%;height:100%}
-.fete-texte{position:relative;text-align:center;pointer-events:none;text-shadow:0 0 .4em rgba(0,0,0,.6)}
+.fete-texte{position:relative;z-index:1;text-align:center;pointer-events:none;text-shadow:0 0 .4em rgba(0,0,0,.6)}
+.photo-fond{position:absolute;inset:-30px;background:center/cover no-repeat;animation:apparition 1.5s ease-out both}
+.photo-fond.net{filter:brightness(.4)}
+.photo-fond.flou{filter:blur(18px) brightness(.45)}
+.polaroid{display:inline-block;background:#fff;padding:10px 10px 36px;margin:.4em 0 .6em;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:polaroid 1.2s cubic-bezier(.2,1.4,.4,1) both}
+.polaroid img{display:block;max-width:min(70vw,440px);max-height:36vh;object-fit:cover}
+@keyframes polaroid{from{transform:scale(0) rotate(-200deg)}to{transform:rotate(-3deg)}}
+@keyframes apparition{from{opacity:0}}
+.photo-form{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.photo-form img{width:72px;height:72px;object-fit:cover;border-radius:6px}
+.fete canvas{z-index:0}
 .fete-nom{font-size:clamp(1.4rem,6vw,3.2rem);margin-bottom:.2em}
 .fete-msg{font-size:clamp(2.2rem,10vw,6.5rem);line-height:1.05;text-shadow:none;filter:drop-shadow(0 0 .12em rgba(0,0,0,.7));animation:pulse 1.6s ease-in-out infinite;background:linear-gradient(90deg,#fde047,#f472b6,#60a5fa,#fde047);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:pulse 1.6s ease-in-out infinite,degrade 6s linear infinite}
 @keyframes pulse{50%{transform:scale(1.06)}}
@@ -115,6 +125,10 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
       <label>Police<select name="police"></select></label>
       <label>Couleur de fond<input type="color" name="fond" value="#1f2937"></label>
     </div>
+    <div class="ligne">
+      <label>Couleur du texte<input type="color" name="texte" value="#f9fafb"></label>
+      <div class="groupe" style="align-items:flex-end"><label><input type="checkbox" name="texteAuto" checked>Automatique (contraste)</label></div>
+    </div>
     <label>Message (affiché sous les chiffres)<input name="message" maxlength="80" placeholder="…avant la retraite !"></label>
     <div id="vues-editeur"></div>
     <button type="button" id="btn-ajout-vue" class="btn-lien">+ Ajouter une vue</button>
@@ -129,6 +143,26 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
         </select></label>
         <label>Durée : <output id="duree-aff"></output><input type="range" name="transDuree" min="0.2" max="3" step="0.1" value="0.6"></label>
       </div>
+      <label>Vue suivante automatique après (s, 0 = jamais)<input type="number" name="transAuto" min="0" max="3600" step="1" value="0"></label>
+    </fieldset>
+    <fieldset><legend>Son du temps qui passe</legend>
+      <div class="ligne">
+        <label>Son<select name="ticSon">
+          <option value="aucun">Aucun</option>
+          <option value="pendule">Pendule</option>
+          <option value="horloge">Horloge</option>
+          <option value="goutte">Gouttes d'eau</option>
+          <option value="coeur">Battement de cœur</option>
+          <option value="bip">Bip digital</option>
+        </select></label>
+        <label>Quand<select name="ticQuand">
+          <option value="toujours">Toujours</option>
+          <option value="minute">Dernière minute</option>
+          <option value="10s">10 dernières secondes</option>
+        </select></label>
+      </div>
+      <label>Volume<input type="range" name="ticVolume" min="0.05" max="1" step="0.05" value="0.5"></label>
+      <button type="button" id="btn-ecouter-tic" class="btn-lien">▶ Écouter</button>
     </fieldset>
     <fieldset><legend>Jour J</legend>
       <label>Message<input name="feteMsg" maxlength="60" placeholder="C'est le grand jour !"></label>
@@ -136,6 +170,10 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
         <label>Musique<select name="musique">
           <option value="marseillaise">La Marseillaise</option>
           <option value="anniversaire">Joyeux anniversaire</option>
+          <option value="fanfare">Fanfare de victoire</option>
+          <option value="achievement">Achievement</option>
+          <option value="ode">Ode à la joie</option>
+          <option value="aida">Marche triomphale (Aïda)</option>
           <option value="aucune">Aucune</option>
         </select></label>
         <label>Durée de la fête<select name="feteDuree">
@@ -144,7 +182,20 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
           <option value="24h">24 heures</option>
         </select></label>
       </div>
-      <button type="button" id="btn-apercu" class="btn-lien">▶ Aperçu de la fête</button>
+      <label>Animation<select name="feteAnim"></select></label>
+      <div class="photo-form">
+        <img id="photo-miniature" alt="" hidden>
+        <button type="button" id="btn-photo" class="btn-lien">📷 Choisir une photo</button>
+        <button type="button" id="btn-photo-retirer" class="btn-lien" hidden>Retirer</button>
+        <input type="file" id="photo-fichier" accept="image/*" hidden>
+      </div>
+      <label>Affichage de la photo<select name="photoMode">
+        <option value="polaroid-flou">Polaroid sur fond flou</option>
+        <option value="polaroid">Polaroid seul</option>
+        <option value="fond">Plein écran</option>
+      </select></label>
+      <div class="groupe"><button type="button" id="btn-ecouter-musique" class="btn-lien">♪ Écouter la musique</button>
+      <button type="button" id="btn-apercu" class="btn-lien">▶ Aperçu de la fête</button></div>
     </fieldset>
     <p id="erreur" class="erreur"></p>
     <div class="actions">
@@ -176,7 +227,8 @@ const UNITES = [
 ];
 const VUE_DEFAUT = { unites: ['jour', 'heure', 'minute', 'seconde'], style: 'flip' };
 const TRANS_DEFAUT = { type: 'glissement', duree: 600 };
-const FETE_DEFAUT = { message: '', musique: 'marseillaise', duree: 'minuit' };
+const FETE_DEFAUT = { message: '', musique: 'marseillaise', duree: 'minuit', anim: 'feu' };
+const TIC_DEFAUT = { son: 'aucun', quand: 'toujours', volume: 0.5 };
 const $ = s => document.querySelector(s);
 
 let compteurs = charger();
@@ -194,6 +246,8 @@ function charger() {
     if (!c.transition) c.transition = { ...TRANS_DEFAUT };
     if (c.message === undefined) c.message = '';
     if (!c.fete) c.fete = { ...FETE_DEFAUT };
+    if (!c.tic) c.tic = { ...TIC_DEFAUT };
+    if (c.texte === undefined) c.texte = '';
     return c;
   });
 }
@@ -277,12 +331,13 @@ function construire(dir = null) {
     scene.classList.add('style-' + v.style);
     scene.style.background = c.fond;
     scene.style.fontFamily = POLICES[c.police] || POLICES['Système'];
-    vue.style.color = couleurTexte(c.fond);
+    vue.style.color = c.texte || couleurTexte(c.fond);
     scene.innerHTML = '<h1 class="titre"></h1><p class="cible"></p><div class="unites"></div><p class="message"></p>';
     scene.querySelector('.titre').textContent = c.nom;
     scene.querySelector('.cible').textContent = formatDate(c.cible);
     scene.querySelector('.message').textContent = c.message || '';
-    etat = { c, v, scene, unites: {} };
+    etat = { c, v, scene, unites: {}, debut: Date.now() };
+    derniereSeconde = null;
     const box = scene.querySelector('.unites');
     for (const u of UNITES) if (v.unites.includes(u.k)) {
       const el = document.createElement('div');
@@ -311,28 +366,95 @@ function construireFete(scene, c) {
   scene.querySelector('.fete-msg').textContent = c.fete.message || "C'est le grand jour !";
   scene.querySelector('.cible').textContent = formatDate(c.cible);
   etat = { c, fete: true, scene };
+  photoDe(c).then(blob => {
+    if (!blob || !etat || etat.scene !== scene) return;
+    const url = URL.createObjectURL(blob), mode = c.fete.photoMode || 'polaroid-flou';
+    scene.dataset.url = url;
+    if (mode !== 'polaroid') {
+      const fond = document.createElement('div');
+      fond.className = 'photo-fond ' + (mode === 'fond' ? 'net' : 'flou');
+      fond.style.backgroundImage = `url(${url})`;
+      scene.prepend(fond);
+    }
+    if (mode !== 'fond') {
+      const fig = document.createElement('div'); fig.className = 'polaroid';
+      const img = new Image(); img.src = url; fig.append(img);
+      scene.querySelector('.fete-nom').after(fig);
+    }
+  });
+}
+
+// ---------- Photos (IndexedDB, restent sur l'appareil) ----------
+const idb = (() => {
+  let dbp;
+  const ouvrir = () => dbp ??= new Promise((ok, ko) => {
+    const r = indexedDB.open('compteurs', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('photos');
+    r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
+  });
+  const tx = (mode, fn) => ouvrir().then(db => new Promise((ok, ko) => {
+    const t = db.transaction('photos', mode), q = fn(t.objectStore('photos'));
+    t.oncomplete = () => ok(q.result); t.onerror = () => ko(t.error);
+  }));
+  return { get: k => tx('readonly', s => s.get(k)), set: (k, v) => tx('readwrite', s => s.put(v, k)), del: k => tx('readwrite', s => s.delete(k)) };
+})();
+function photoDe(c) {
+  if (apercu && apercu.c === c && apercu.photo !== undefined) return Promise.resolve(apercu.photo);
+  return c.fete.photo ? idb.get(c.id).catch(() => null) : Promise.resolve(null);
+}
+// Réduit la photo (1200 px max, JPEG) pour limiter la place occupée
+function reduirePhoto(fichier) {
+  return new Promise((ok, ko) => {
+    const img = new Image(), url = URL.createObjectURL(fichier);
+    img.onload = () => {
+      const r = Math.min(1, 1200 / Math.max(img.width, img.height)), cv = document.createElement('canvas');
+      cv.width = Math.round(img.width * r); cv.height = Math.round(img.height * r);
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(url);
+      cv.toBlob(b => b ? ok(b) : ko(new Error('conversion')), 'image/jpeg', 0.85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); ko(new Error('image illisible')); };
+    img.src = url;
+  });
 }
 
 let feu = null;
 function demarrerFete(scene, c) {
-  feu = new FeuArtifice(scene.querySelector('canvas'));
+  const m = MELODIES[c.fete.musique];
+  feu = new Spectacle(scene.querySelector('canvas'), c.fete.anim || 'feu', m ? m.tempo : 120);
   const btn = scene.querySelector('.btn-son');
   if (c.fete.musique === 'aucune') return;
-  const ac = audio();
-  if (ac && ac.state === 'running') jouerMelodie(c.fete.musique);
-  else if (ac) { btn.hidden = false; btn.onclick = () => { ac.resume().then(() => { btn.hidden = true; jouerMelodie(c.fete.musique); }); }; }
+  const a = audio();
+  if (!a) return;
+  const go = () => { btn.hidden = true; jouerMelodie(c.fete.musique); };
+  btn.onclick = () => debloquerAudio().then(go);
+  if (a.state === 'running') return go();
+  a.resume().then(() => { if (a.state === 'running' && etat && etat.scene === scene) go(); }).catch(() => {});
+  setTimeout(() => { if (a.state !== 'running' && etat && etat.scene === scene) btn.hidden = false; }, 400);
 }
-function arreterFete() { if (feu) { feu.stop(); feu = null; } arreterMusique(); }
-function toucherFete() {
-  const ac = audio();
-  if (!ac || etat.c.fete.musique === 'aucune') return;
-  ac.resume().then(() => { const b = etat.scene.querySelector('.btn-son'); if (b) b.hidden = true; jouerMelodie(etat.c.fete.musique); });
+function arreterFete() {
+  if (feu) { feu.stop(); feu = null; } arreterMusique();
+  const u = sceneActuelle && sceneActuelle.dataset.url; if (u) setTimeout(() => URL.revokeObjectURL(u), 5000);
+}
+function toucherFete(x, y) {
+  if (feu && feu.toucher(x, y)) return;            // ballon éclaté
+  if (etat.c.fete.musique === 'aucune') return;
+  debloquerAudio().then(() => { const b = etat.scene.querySelector('.btn-son'); if (b) b.hidden = true; jouerMelodie(etat.c.fete.musique); });
 }
 
-class FeuArtifice {
-  constructor(cv) {
+const ANIMS = { feu: "Feu d'artifice", confettis: 'Pluie de confettis', ballons: 'Lâcher de ballons', bouquet: 'Bouquet final', disco: 'Soirée disco', tout: 'Tout enchaîner' };
+const CYCLE = ['feu', 'confettis', 'ballons', 'bouquet', 'disco'];
+const COULEURS = ['#f43f5e', '#f59e0b', '#fde047', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899', '#ffffff'];
+const hasard = (a, b) => a + Math.random() * (b - a);
+const choix = l => l[Math.random() * l.length | 0];
+
+class Spectacle {
+  constructor(cv, mode, tempo) {
     this.cv = cv; this.ctx = cv.getContext('2d');
-    this.fusees = []; this.part = []; this.actif = true; this.prochain = 0;
+    this.cycle = mode === 'tout'; this.mode = this.cycle ? CYCLE[0] : mode;
+    this.tempo = tempo; this.actif = true; this.prochain = {}; this.tChangement = null;
+    this.fusees = []; this.part = []; this.confs = []; this.serps = []; this.ballons = [];
+    this.flash = 0; this.discoA = 0; this.avant = null;
     this.taille(); this.onResize = () => this.taille();
     addEventListener('resize', this.onResize);
     requestAnimationFrame(t => this.boucle(t));
@@ -342,60 +464,230 @@ class FeuArtifice {
     this.w = this.cv.clientWidth || innerWidth; this.h = this.cv.clientHeight || innerHeight;
     this.cv.width = this.w * r; this.cv.height = this.h * r;
     this.ctx.setTransform(r, 0, 0, r, 0, 0);
+    this.ech = Math.min(1.6, Math.max(0.8, Math.min(this.w, this.h) / 500));
   }
-  lancer() {
-    const x = this.w * (0.15 + Math.random() * 0.7);
-    const hautCible = this.h * (0.12 + Math.random() * 0.35);
-    this.fusees.push({ x, y: this.h, px: x, py: this.h, vx: (Math.random() - .5) * 1.5,
-      vy: -Math.sqrt(2 * 0.12 * (this.h - hautCible)), teinte: Math.random() * 360 });
+  quand(cle, t, min, max) {        // vrai quand c'est l'heure de déclencher « cle »
+    if (t < (this.prochain[cle] || 0)) return false;
+    this.prochain[cle] = t + hasard(min, max); return true;
+  }
+
+  // ---- Feux d'artifice ----
+  lancer(type = 'pivoine', x) {
+    x = x ?? this.w * hasard(0.12, 0.88);
+    const haut = this.h * hasard(0.1, 0.4);
+    this.fusees.push({ x, y: this.h, px: x, py: this.h, vx: hasard(-.7, .7), vy: -Math.sqrt(2 * 0.12 * (this.h - haut)), teinte: hasard(0, 360), type });
   }
   exploser(f) {
-    const n = 60 + Math.random() * 50 | 0, v = 2 + Math.random() * 3, double = Math.random() < .3;
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2 + Math.random() * .1, s = v * (0.6 + Math.random() * 0.5);
-      this.part.push({ x: f.x, y: f.y, px: f.x, py: f.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s,
-        vie: 1, decay: 0.008 + Math.random() * 0.01,
-        teinte: double && i % 2 ? (f.teinte + 180) % 360 : f.teinte + Math.random() * 30 });
+    const s = this.ech, add = (vx, vy, o = {}) => this.part.push({ x: f.x, y: f.y, px: f.x, py: f.y, vx, vy, vie: 1,
+      decay: o.decay ?? hasard(0.008, 0.016), g: o.g ?? 0.04, teinte: o.teinte ?? f.teinte + hasard(0, 30),
+      sat: o.sat ?? 100, crep: o.crep, trace: o.trace ?? 2 });
+    const t = f.type;
+    if (t === 'coeur' || t === 'etoile') {
+      const n = 90, pts = [];
+      if (t === 'etoile') for (let i = 0; i <= 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? .42 : 1; pts.push([Math.cos(a) * r, Math.sin(a) * r]); }
+      for (let i = 0; i < n; i++) {
+        let x, y;
+        if (t === 'coeur') { const a = i / n * Math.PI * 2; x = 16 * Math.sin(a) ** 3 / 16; y = -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a)) / 16; }
+        else { const u = i / n * 10, k = u | 0, fr = u - k; x = pts[k][0] + (pts[k + 1][0] - pts[k][0]) * fr; y = pts[k][1] + (pts[k + 1][1] - pts[k][1]) * fr; }
+        add(x * 4.2 * s, y * 4.2 * s, { g: 0.012, decay: 0.009, teinte: t === 'coeur' ? hasard(340, 360) : hasard(45, 55) });
+      }
+    } else if (t === 'anneau') {
+      for (let i = 0; i < 70; i++) { const a = i / 70 * Math.PI * 2; add(Math.cos(a) * 4 * s, Math.sin(a) * 4 * s, { g: 0.02 }); }
+    } else if (t === 'saule') {
+      for (let i = 0; i < 110; i++) { const a = hasard(0, Math.PI * 2), v = hasard(1, 3.2) * s; add(Math.cos(a) * v, Math.sin(a) * v, { g: 0.05, decay: hasard(0.004, 0.007), teinte: hasard(38, 48), sat: 90, trace: 5 }); }
+    } else {
+      const n = hasard(70, 120) | 0, v = hasard(2.5, 4.5) * s, double = Math.random() < .35, crep = t === 'crepitant';
+      for (let i = 0; i < n; i++) {
+        const a = i / n * Math.PI * 2 + hasard(0, .1), sp = v * hasard(.55, 1.05);
+        add(Math.cos(a) * sp, Math.sin(a) * sp, { crep, teinte: double && i % 2 ? (f.teinte + 180) % 360 : undefined });
+      }
+      if (crep) setTimeout(crepitement, 700);
     }
+    if (this.mode === 'bouquet') this.flash = Math.min(0.15, this.flash + 0.05);
     boum();
   }
-  boucle(t) {
-    if (!this.actif) return;
-    const c = this.ctx;
-    c.clearRect(0, 0, this.w, this.h);
-    if (t > this.prochain && this.part.length < 1500) {
-      this.lancer(); if (Math.random() < .25) this.lancer();
-      this.prochain = t + 350 + Math.random() * 700;
-    }
+  majFeux(c, k) {
     c.globalCompositeOperation = 'lighter'; c.lineCap = 'round';
     this.fusees = this.fusees.filter(f => {
-      f.px = f.x; f.py = f.y; f.x += f.vx; f.y += f.vy; f.vy += 0.12;
+      f.px = f.x; f.py = f.y; f.x += f.vx * k; f.y += f.vy * k; f.vy += 0.12 * k;
       c.strokeStyle = `hsla(${f.teinte},100%,80%,1)`; c.lineWidth = 2.5;
       c.beginPath(); c.moveTo(f.px, f.py + 6); c.lineTo(f.x, f.y); c.stroke();
       if (f.vy >= -0.5) { this.exploser(f); return false; }
       return true;
     });
     this.part = this.part.filter(p => {
-      p.px = p.x; p.py = p.y; p.vx *= 0.985; p.vy = p.vy * 0.985 + 0.04;
-      p.x += p.vx; p.y += p.vy; p.vie -= p.decay;
-      c.strokeStyle = `hsla(${p.teinte},100%,${55 + p.vie * 25}%,${p.vie})`; c.lineWidth = 2;
-      c.beginPath(); c.moveTo(p.px - p.vx * 2, p.py - p.vy * 2); c.lineTo(p.x, p.y); c.stroke();
+      const dr = Math.pow(0.985, k);
+      p.vx *= dr; p.vy = p.vy * dr + p.g * k; p.x += p.vx * k; p.y += p.vy * k; p.vie -= p.decay * k;
+      if (p.crep && p.vie < 0.35) {          // crépitement : scintillement blanc
+        if (Math.random() < .5) { c.fillStyle = '#fff'; c.fillRect(p.x - 1.5, p.y - 1.5, 3, 3); }
+        return p.vie > 0;
+      }
+      c.strokeStyle = `hsla(${p.teinte},${p.sat}%,${55 + p.vie * 25}%,${p.vie})`; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(p.x - p.vx * p.trace, p.y - p.vy * p.trace); c.lineTo(p.x, p.y); c.stroke();
       return p.vie > 0;
     });
     c.globalCompositeOperation = 'source-over';
+  }
+
+  // ---- Confettis & serpentins ----
+  confetti(x, y, vx, vy) {
+    this.confs.push({ x, y, vx, vy, rot: hasard(0, 6.3), vrot: hasard(-.15, .15), flip: hasard(0, 6.3), vflip: hasard(.05, .2),
+      w: hasard(5, 9) * this.ech, h: hasard(9, 15) * this.ech, coul: choix(COULEURS), ph: hasard(0, 6.3) });
+  }
+  canon() {
+    for (const cote of [0, 1]) for (let i = 0; i < 70; i++) {
+      const a = (cote ? -Math.PI * .62 : -Math.PI * .38) + hasard(-.25, .25), v = hasard(9, 18) * Math.sqrt(this.ech);
+      this.confetti(cote * this.w, this.h, Math.cos(a) * v, Math.sin(a) * v);
+    }
+    pouf();
+  }
+  majConfettis(c, k, t) {
+    this.confs = this.confs.filter(p => {
+      const dr = Math.pow(0.975, k);
+      p.vx *= dr; p.vy = p.vy * dr + 0.09 * k;
+      p.x += (p.vx + Math.sin(t * 0.003 + p.ph) * 0.6) * k; p.y += p.vy * k;
+      p.rot += p.vrot * k; p.flip += p.vflip * k;
+      c.save(); c.translate(p.x, p.y); c.rotate(p.rot); c.scale(1, Math.cos(p.flip));
+      c.fillStyle = p.coul; c.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); c.restore();
+      return p.y < this.h + 30;
+    });
+    this.serps = this.serps.filter(s => {
+      s.y += s.v * k; s.x = s.x0 + Math.sin(t * 0.002 + s.ph) * 40 * this.ech;
+      s.pts.unshift([s.x, s.y]); if (s.pts.length > 28) s.pts.pop();
+      c.strokeStyle = s.coul; c.lineWidth = 4 * this.ech; c.lineCap = 'round'; c.lineJoin = 'round';
+      c.beginPath(); s.pts.forEach(([x, y], i) => i ? c.lineTo(x + Math.sin(i * .6 + t * .01) * 6, y) : c.moveTo(x, y)); c.stroke();
+      return s.pts[s.pts.length - 1][1] < this.h + 20;
+    });
+  }
+
+  // ---- Ballons ----
+  majBallons(c, k, t) {
+    this.ballons = this.ballons.filter(b => {
+      b.y += b.vy * k; b.x += Math.sin(t * 0.0015 + b.ph) * 0.45 * k;
+      const r = b.r, ry = r * 1.18, sway = Math.sin(t * 0.002 + b.ph) * r * .4;
+      c.strokeStyle = 'rgba(255,255,255,.45)'; c.lineWidth = 1.2;
+      c.beginPath(); c.moveTo(b.x, b.y + ry); c.quadraticCurveTo(b.x + sway, b.y + ry + r * 1.4, b.x - sway * .5, b.y + ry + r * 2.8); c.stroke();
+      const g = c.createRadialGradient(b.x - r * .35, b.y - ry * .4, r * .1, b.x, b.y, r * 1.3);
+      g.addColorStop(0, '#ffffffcc'); g.addColorStop(.25, b.coul); g.addColorStop(1, '#00000088');
+      c.fillStyle = g; c.beginPath(); c.ellipse(b.x, b.y, r, ry, 0, 0, Math.PI * 2); c.fill();
+      c.fillStyle = b.coul; c.beginPath(); c.moveTo(b.x, b.y + ry - 2); c.lineTo(b.x - r * .14, b.y + ry + r * .16); c.lineTo(b.x + r * .14, b.y + ry + r * .16); c.fill();
+      return b.y > -ry * 4;
+    });
+  }
+  toucher(x, y) {
+    for (let i = this.ballons.length - 1; i >= 0; i--) {
+      const b = this.ballons[i], dx = (x - b.x) / b.r, dy = (y - b.y) / (b.r * 1.18);
+      if (dx * dx + dy * dy < 1.4) {
+        this.ballons.splice(i, 1);
+        for (let j = 0; j < 45; j++) { const a = hasard(0, 6.3), v = hasard(2, 9); this.confetti(b.x, b.y, Math.cos(a) * v, Math.sin(a) * v - 2); }
+        pop(); return true;
+      }
+    }
+    return false;
+  }
+
+  // ---- Disco ----
+  majDisco(c, t) {
+    const A = this.discoA, w = this.w, h = this.h;
+    const temps = t / 1000 * this.tempo / 60, phase = temps % 1, pulse = Math.pow(1 - phase, 3), teinte = (Math.floor(temps) * 67) % 360;
+    c.fillStyle = `hsla(${teinte},85%,30%,${0.45 * pulse * A})`; c.fillRect(0, 0, w, h);
+    c.globalCompositeOperation = 'lighter';
+    const R = Math.min(w, h) * 0.075, bx = w / 2, by = Math.min(h * 0.13, 90) + R * .2;
+    // faisceaux
+    const sources = [[w * .08, 0], [w * .92, 0], [bx, by]];
+    for (let i = 0; i < 5; i++) {
+      const [ox, oy] = sources[i % 3], ang = Math.PI / 2 + Math.sin(t * 0.0006 * (1 + i * .3) + i * 2) * 0.9, L = Math.hypot(w, h);
+      const g = c.createLinearGradient(ox, oy, ox + Math.cos(ang) * L, oy + Math.sin(ang) * L);
+      const col = `hsla(${(teinte + i * 72) % 360},100%,60%,`;
+      g.addColorStop(0, col + 0.35 * A + ')'); g.addColorStop(1, col + '0)');
+      c.fillStyle = g; c.beginPath(); c.moveTo(ox, oy);
+      c.lineTo(ox + Math.cos(ang - .09) * L, oy + Math.sin(ang - .09) * L); c.lineTo(ox + Math.cos(ang + .09) * L, oy + Math.sin(ang + .09) * L); c.fill();
+    }
+    // reflets de la boule
+    for (let i = 0; i < 45; i++) {
+      const a = i * 2.39996 + t * 0.00035, d = (0.15 + (i * 37 % 100) / 120) * Math.max(w, h);
+      const x = bx + Math.cos(a) * d, y = by + Math.abs(Math.sin(a)) * d * .9;
+      c.fillStyle = `hsla(${(i * 47 + teinte) % 360},100%,75%,${0.55 * A})`;
+      c.beginPath(); c.arc(x, y, 2.5 * this.ech, 0, 6.3); c.fill();
+    }
+    c.globalCompositeOperation = 'source-over';
+    // boule à facettes
+    c.globalAlpha = A;
+    c.strokeStyle = '#999'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(bx, 0); c.lineTo(bx, by - R); c.stroke();
+    c.save(); c.beginPath(); c.arc(bx, by, R, 0, 6.3); c.clip();
+    c.fillStyle = '#334155'; c.fillRect(bx - R, by - R, 2 * R, 2 * R);
+    const rangs = 9, cols = 16, rot = t * 0.0008;
+    for (let i = 0; i < rangs; i++) {
+      const lat = -Math.PI / 2 + (i + .5) * Math.PI / rangs, y = by + Math.sin(lat) * R, rr = Math.cos(lat) * R, hf = Math.PI / rangs * R * .9;
+      for (let j = 0; j < cols; j++) {
+        const lon = j / cols * Math.PI * 2 + rot, z = Math.cos(lon);
+        if (z <= 0) continue;
+        const x = bx + Math.sin(lon) * rr, wf = Math.max(1, (Math.PI * 2 / cols) * rr * z * .9);
+        const br = 35 + 55 * z * (0.5 + 0.5 * Math.sin(i * 3.1 + j * 1.7 + t * 0.006));
+        c.fillStyle = `hsl(${(i * 40 + j * 20 + teinte) % 360},${br > 80 ? 70 : 10}%,${br}%)`;
+        c.fillRect(x - wf / 2, y - hf / 2, wf, hf);
+      }
+    }
+    c.restore(); c.globalAlpha = 1;
+  }
+
+  boucle(t) {
+    if (!this.actif) return;
+    const k = this.avant === null ? 1 : Math.min((t - this.avant) / 16.67, 3); this.avant = t;
+    if (this.cycle) {
+      if (this.tChangement === null) this.tChangement = t + 12000;
+      if (t > this.tChangement) { this.mode = CYCLE[(CYCLE.indexOf(this.mode) + 1) % CYCLE.length]; this.tChangement = t + 12000; this.prochain = {}; }
+    }
+    const m = this.mode, c = this.ctx;
+    // déclenchements
+    if (m === 'feu' && this.part.length < 1500 && this.quand('fusee', t, 350, 1000)) { this.lancer(); if (Math.random() < .25) this.lancer(); }
+    if (m === 'bouquet' && this.part.length < 2600 && this.quand('salve', t, 300, 750)) {
+      const n = hasard(2, 5) | 0, type = choix(['pivoine', 'pivoine', 'coeur', 'etoile', 'anneau', 'saule', 'crepitant']);
+      for (let i = 0; i < n; i++) this.lancer(Math.random() < .5 ? type : choix(['pivoine', 'crepitant', 'saule']), this.w * (0.1 + 0.8 * (i + Math.random()) / n));
+    }
+    if (m === 'confettis') {
+      if (this.confs.length < 450) for (let i = 0; i < 2; i++) this.confetti(hasard(0, this.w), -20, hasard(-1, 1), hasard(1, 3));
+      if (this.quand('canon', t, 3000, 4500)) this.canon();
+      if (this.serps.length < 10 && this.quand('serp', t, 500, 1200)) { const x0 = hasard(0, this.w); this.serps.push({ x0, x: x0, y: -20, v: hasard(1.5, 3), ph: hasard(0, 6.3), coul: choix(COULEURS), pts: [] }); }
+    }
+    if (m === 'ballons' && this.ballons.length < 22 && this.quand('ballon', t, 450, 1000))
+      this.ballons.push({ x: hasard(.08, .92) * this.w, y: this.h + 60, r: hasard(24, 42) * this.ech, vy: -hasard(.9, 2.1), ph: hasard(0, 6.3), coul: choix(COULEURS.slice(0, 8)) });
+    if (m === 'disco' && this.quand('boule', t, 2500, 4000)) this.lancer('anneau');
+    // dessin
+    this.discoA += ((m === 'disco' ? 1 : 0) - this.discoA) * 0.05 * k;
+    c.clearRect(0, 0, this.w, this.h);
+    if (this.discoA > 0.01) this.majDisco(c, t);
+    this.majFeux(c, k);
+    this.majBallons(c, k, t);
+    this.majConfettis(c, k, t);
+    if (this.flash > 0.01) { c.fillStyle = `rgba(255,240,220,${this.flash})`; c.fillRect(0, 0, this.w, this.h); this.flash *= Math.pow(0.85, k); }
     requestAnimationFrame(t2 => this.boucle(t2));
   }
   stop() { this.actif = false; removeEventListener('resize', this.onResize); }
 }
 
 // --- Audio (synthétisé, aucun fichier) ---
-let ac = null, musique = null;
+let ac = null, musique = null, silence = null;
 function audio() {
   if (!ac) { const A = window.AudioContext || window.webkitAudioContext; if (A) ac = new A(); }
   return ac;
 }
-// Le navigateur exige une interaction avant de jouer du son : on débloque au premier geste
-['pointerdown', 'keydown'].forEach(ev => addEventListener(ev, () => { const a = audio(); if (a && a.state !== 'running') a.resume(); }, { capture: true }));
+// Débloque le son (à appeler pendant un geste). Sur iPhone, force la sortie même en mode silencieux.
+function debloquerAudio() {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch {}
+  if (!silence) {
+    const n = 800, b = new ArrayBuffer(44 + n), v = new DataView(b), w = (o, t) => [...t].forEach((c, k) => v.setUint8(o + k, c.charCodeAt(0)));
+    w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+    for (let k = 0; k < n; k++) v.setUint8(44 + k, 128);
+    silence = new Audio(URL.createObjectURL(new Blob([b], { type: 'audio/wav' })));
+    silence.setAttribute('playsinline', '');
+  }
+  silence.play().catch(() => {});
+  const a = audio();
+  return a ? a.resume().catch(() => {}) : Promise.resolve();
+}
+['pointerdown', 'keydown'].forEach(ev => addEventListener(ev, () => { if (!ac || ac.state !== 'running') debloquerAudio(); }, { capture: true }));
 
 function freq(n) {
   const m = n.match(/^([A-G])(#|b)?(\d)$/);
@@ -404,46 +696,126 @@ function freq(n) {
 }
 const MELODIES = {
   // Début de La Marseillaise (sol majeur)
-  marseillaise: { tempo: 100, notes: [
+  marseillaise: { tempo: 100, instr: 'cuivre', notes: [
     ['D4', .75], ['D4', .25],
     ['G4', 1], ['G4', 1], ['A4', 1], ['A4', 1],
     ['D5', 1.5], ['B4', .5], ['G4', .75], ['G4', .25], ['B4', .75], ['G4', .25],
     ['E4', 1], ['C5', 2], ['A4', .75], ['F#4', .25],
     ['G4', 3]], accord: ['G3', 'B3', 'D4', 'G4'] },
-  anniversaire: { tempo: 120, notes: [
+  anniversaire: { tempo: 120, instr: 'flute', notes: [
     ['G4', .75], ['G4', .25], ['A4', 1], ['G4', 1], ['C5', 1], ['B4', 2],
     ['G4', .75], ['G4', .25], ['A4', 1], ['G4', 1], ['D5', 1], ['C5', 2],
     ['G4', .75], ['G4', .25], ['G5', 1], ['E5', 1], ['C5', 1], ['B4', 1], ['A4', 2],
-    ['F5', .75], ['F5', .25], ['E5', 1], ['C5', 1], ['D5', 1], ['C5', 3]], accord: ['C4', 'E4', 'G4', 'C5'] }
+    ['F5', .75], ['F5', .25], ['E5', 1], ['C5', 1], ['D5', 1], ['C5', 3]], accord: ['C4', 'E4', 'G4', 'C5'] },
+  // Composition originale
+  fanfare: { tempo: 140, instr: 'cuivre', notes: [
+    ['C5', .33], ['C5', .33], ['C5', .34], ['G5', 1.5], ['E5', .5],
+    ['F5', .33], ['F5', .33], ['F5', .34], ['A5', 1.5], ['F5', .5],
+    ['G5', .5], ['G5', .5], ['A5', .5], ['B5', .5], ['C6', 2]], accord: ['C4', 'G4', 'C5', 'E5', 'G5'] },
+  // Jingle original « succès débloqué »
+  achievement: { tempo: 150, instr: 'cloche', notes: [
+    ['E5', .25], ['G#5', .25], ['B5', .25], ['E6', .75], [null, .25],
+    ['B5', .25], ['E6', .25], ['G#6', 1]], accord: ['E5', 'G#5', 'B5', 'E6'] },
+  // Beethoven, 9e symphonie
+  ode: { tempo: 112, instr: 'flute', notes: [
+    ['E5', 1], ['E5', 1], ['F5', 1], ['G5', 1], ['G5', 1], ['F5', 1], ['E5', 1], ['D5', 1],
+    ['C5', 1], ['C5', 1], ['D5', 1], ['E5', 1], ['E5', 1.5], ['D5', .5], ['D5', 2],
+    ['E5', 1], ['E5', 1], ['F5', 1], ['G5', 1], ['G5', 1], ['F5', 1], ['E5', 1], ['D5', 1],
+    ['C5', 1], ['C5', 1], ['D5', 1], ['E5', 1], ['D5', 1.5], ['C5', .5], ['C5', 2]], accord: ['C4', 'E4', 'G4', 'C5'] },
+  // Verdi, Aïda — thème des trompettes (transcrit de mémoire)
+  aida: { tempo: 96, instr: 'cuivre', notes: [
+    ['G4', .5], ['C5', 1.5], ['C5', .5], ['C5', .75], ['D5', .25], ['E5', .75], ['C5', .25],
+    ['G5', 2], ['E5', .75], ['C5', .25], ['D5', .75], ['E5', .25],
+    ['F5', 1.5], ['D5', .5], ['B4', .75], ['G4', .25], ['D5', .75], ['B4', .25],
+    ['C5', 3]], accord: ['C4', 'G4', 'C5', 'E5'] }
+};
+const INSTRUMENTS = {
+  cuivre: [['square', 1, .10], ['triangle', .5, .18]],
+  flute:  [['triangle', 1, .30], ['sine', 2, .05]],
+  cloche: [['sine', 1, .30], ['sine', 2.76, .08], ['triangle', 2, .06]]
 };
 function jouerMelodie(nom) {
   const m = MELODIES[nom], a = audio();
   if (!m || !a) return;
   arreterMusique();
   const sortie = a.createGain(); sortie.gain.value = 0.5;
-  const filtre = a.createBiquadFilter(); filtre.type = 'lowpass'; filtre.frequency.value = 2800;
+  const filtre = a.createBiquadFilter(); filtre.type = 'lowpass'; filtre.frequency.value = 3200;
   filtre.connect(sortie); sortie.connect(a.destination);
   musique = sortie;
-  const noire = 60 / m.tempo;
+  const noire = 60 / m.tempo, cloche = m.instr === 'cloche';
   let t = a.currentTime + 0.1;
   const note = (n, debut, dur, vol) => {
-    for (const [type, mult, v] of [['square', 1, 0.10], ['triangle', 0.5, 0.18]]) {
+    for (const [type, mult, v] of INSTRUMENTS[m.instr]) {
       const o = a.createOscillator(), g = a.createGain();
       o.type = type; o.frequency.value = freq(n) * mult;
       g.gain.setValueAtTime(0, debut);
-      g.gain.linearRampToValueAtTime(v * vol, debut + 0.02);
-      g.gain.setValueAtTime(v * vol, debut + dur * 0.75);
-      g.gain.linearRampToValueAtTime(0, debut + dur * 0.95);
-      o.connect(g); g.connect(filtre); o.start(debut); o.stop(debut + dur);
+      g.gain.linearRampToValueAtTime(v * vol, debut + 0.015);
+      if (cloche) { g.gain.exponentialRampToValueAtTime(0.0001, debut + Math.max(dur, 0.6) * 1.5); }
+      else { g.gain.setValueAtTime(v * vol, debut + dur * 0.75); g.gain.linearRampToValueAtTime(0, debut + dur * 0.95); }
+      o.connect(g); g.connect(filtre); o.start(debut); o.stop(debut + (cloche ? Math.max(dur, 0.6) * 1.5 : dur));
     }
   };
   for (const [n, b] of m.notes) { if (n) note(n, t, b * noire, 1); t += b * noire; }
-  for (const n of m.accord) note(n, t, noire * 3, 0.5);
+  for (const n of m.accord) note(n, t, noire * 3, 0.45);
+  setTimeout(() => { if (musique === sortie) musique = null; }, (t - a.currentTime + noire * 3) * 1000 + 200);
 }
 function arreterMusique() {
   if (!musique) return;
   const g = musique; musique = null;
   try { g.gain.setTargetAtTime(0, ac.currentTime, 0.1); setTimeout(() => g.disconnect(), 500); } catch {}
+}
+
+// Sons des secondes
+let bruit = null;
+function bufferBruit(a) {
+  if (!bruit) { const n = a.sampleRate * 0.3; bruit = a.createBuffer(1, n, a.sampleRate); const d = bruit.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; }
+  return bruit;
+}
+function jouerTic(type, vol, sec) {
+  const a = ac;
+  if (!a || a.state !== 'running' || type === 'aucun') return;
+  const t = a.currentTime + 0.01, out = a.createGain();
+  out.gain.value = vol; out.connect(a.destination);
+  const env = (g, pic, dec, debut = t) => { g.gain.setValueAtTime(0, debut); g.gain.linearRampToValueAtTime(pic, debut + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, debut + dec); };
+  const clic = (f, q, pic, dec, debut = t) => {
+    const s = a.createBufferSource(), bp = a.createBiquadFilter(), g = a.createGain();
+    s.buffer = bufferBruit(a); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q;
+    env(g, pic, dec, debut); s.connect(bp); bp.connect(g); g.connect(out); s.start(debut); s.stop(debut + dec + 0.02);
+  };
+  const ton = (type, f1, f2, pic, dec, debut = t) => {
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = type; o.frequency.setValueAtTime(f1, debut); o.frequency.exponentialRampToValueAtTime(f2, debut + dec * 0.6);
+    env(g, pic, dec, debut); o.connect(g); g.connect(out); o.start(debut); o.stop(debut + dec + 0.02);
+  };
+  const pair = sec % 2 === 0;
+  switch (type) {
+    case 'pendule': clic(pair ? 1900 : 1400, 9, 1.6, 0.08); ton('sine', pair ? 900 : 700, pair ? 850 : 650, 0.25, 0.06); break;
+    case 'horloge': clic(3800, 5, 1.2, 0.025); break;
+    case 'goutte': { const f = 650 + Math.random() * 350; ton('sine', f, f * 2.3, 0.6, 0.13); break; }
+    case 'coeur': ton('sine', 75, 42, 1.2, 0.16); ton('sine', 70, 40, 0.8, 0.16, t + 0.22); break;
+    case 'bip': ton('square', sec <= 3 ? 3100 : 2400, sec <= 3 ? 3100 : 2400, 0.12, 0.07); break;
+  }
+  setTimeout(() => out.disconnect(), 800);
+}
+function bruitBref(type, f, pic, dec, debut) {
+  const a = ac; if (!a || a.state !== 'running') return;
+  const t = debut ?? a.currentTime, s = a.createBufferSource(), fl = a.createBiquadFilter(), g = a.createGain();
+  s.buffer = bufferBruit(a); fl.type = type; fl.frequency.value = f;
+  g.gain.setValueAtTime(pic, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dec);
+  s.connect(fl); fl.connect(g); g.connect(a.destination); s.start(t); s.stop(t + dec + 0.02);
+}
+function pop() {
+  bruitBref('highpass', 1200, 0.5, 0.09);
+  const a = ac; if (!a || a.state !== 'running') return;
+  const o = a.createOscillator(), g = a.createGain(), t = a.currentTime;
+  o.frequency.setValueAtTime(500, t); o.frequency.exponentialRampToValueAtTime(110, t + 0.08);
+  g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + 0.12);
+}
+function pouf() { bruitBref('lowpass', 900, 0.35, 0.35); }
+function crepitement() {
+  const a = ac; if (!a || a.state !== 'running') return;
+  for (let i = 0; i < 22; i++) bruitBref('bandpass', hasard(3000, 7000), hasard(0.05, 0.25), 0.02, a.currentTime + Math.random() * 0.8);
 }
 function boum() {
   const a = ac;
@@ -504,8 +876,10 @@ function maj() {
   }
   const cible = new Date(etat.c.cible);
   if (cible <= Date.now()) { construire({ axe: 'y', sens: 1 }); return; }
+  const auto = etat.c.transition.auto || 0;
+  if (auto > 0 && etat.c.vues.length > 1 && $('#vue-reglages').hidden && Date.now() - etat.debut >= auto * 1000) { changerVue(1); return; }
   const r = decomposer(new Date(), cible, etat.v.unites);
-  let nbChiffres = 0;
+  let maxChiffres = 0;
   for (const k in etat.unites) {
     const o = etat.unites[k], v = r[k], txt = String(v).padStart(2, '0');
     o.el.querySelector('.label').textContent = v > 1 ? o.u.p : o.u.s;
@@ -516,11 +890,44 @@ function maj() {
     } else if (o.txt !== txt) {
       for (let i = 0; i < txt.length; i++) if (txt[i] !== o.txt[i]) changerChiffre(val.children[i], +txt[i]);
     }
-    o.txt = txt; nbChiffres += txt.length;
+    o.txt = txt; maxChiffres = Math.max(maxChiffres, txt.length);
   }
-  const nbUnites = Object.keys(etat.unites).length;
-  const vw = 88 / (nbChiffres * 0.85 + (nbUnites - 1) * 0.6);
-  etat.scene.style.setProperty('--taille', `min(10rem, ${vw.toFixed(2)}vw, 24vh)`);
+  dimensionner(Object.keys(etat.unites).length, maxChiffres);
+  tictac(cible - Date.now());
+}
+
+// Choisit le nombre de colonnes qui donne les plus gros chiffres (plusieurs lignes en portrait)
+function dimensionner(n, maxChiffres) {
+  if (!n) return;
+  const W = innerWidth, H = innerHeight, gap = W * 0.03;
+  const largeurChiffre = etat.v.style === 'flip' ? 1.05 : 0.9;
+  let best = { taille: 0, cols: n };
+  for (let cols = n; cols >= 1; cols--) {
+    const rows = Math.ceil(n / cols);
+    const sw = ((W * 0.92 - (cols - 1) * gap) / cols) / (maxChiffres * largeurChiffre);
+    const sh = (H * 0.58 - (rows - 1) * 16 - rows * 30) / (rows * 1.15);
+    const t = Math.min(sw, sh, 170);
+    if (t > best.taille * 1.05) best = { taille: t, cols };
+  }
+  const st = etat.scene.style;
+  st.setProperty('--taille', Math.max(best.taille, 16).toFixed(1) + 'px');
+  st.setProperty('--cols', best.cols);
+  st.setProperty('--gap', gap.toFixed(1) + 'px');
+}
+addEventListener('resize', () => { if (etat && !etat.fete) { const o = Object.values(etat.unites); dimensionner(o.length, Math.max(...o.map(x => (x.txt || '00').length))); } });
+
+// Son à chaque seconde
+let derniereSeconde = null;
+function tictac(resteMs) {
+  const t = etat.c.tic;
+  const sec = Math.ceil(resteMs / 1000);
+  if (sec === derniereSeconde) return;
+  const premier = derniereSeconde === null;
+  derniereSeconde = sec;
+  if (premier || !t || t.son === 'aucun' || document.hidden || !$('#vue-reglages').hidden) return;
+  if (t.quand === 'minute' && sec > 60) return;
+  if (t.quand === '10s' && sec > 10) return;
+  jouerTic(t.son, t.volume, sec);
 }
 
 function dessinerPoints(liste, c) {
@@ -572,7 +979,7 @@ $('#vue-compteur').addEventListener('pointerup', e => {
   const dx = e.clientX - p0.x, dy = e.clientY - p0.y; p0 = null;
   if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) changerCompteur(dx < 0 ? 1 : -1);
   else if (Math.abs(dy) > 50) changerVue(dy < 0 ? 1 : -1);
-  else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { if (etat && etat.fete) toucherFete(); else changerVue(1); }
+  else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { if (etat && etat.fete) { const r = etat.scene.getBoundingClientRect(); toucherFete(e.clientX - r.left, e.clientY - r.top); } else changerVue(1); }
 });
 document.addEventListener('keydown', e => {
   if (!$('#vue-reglages').hidden) return;
@@ -611,7 +1018,7 @@ function dessinerListe() {
     li.querySelector('[data-a=mod]').onclick = () => ouvrirFormulaire(c);
     li.querySelector('[data-a=sup]').onclick = () => {
       if (!confirm(`Supprimer « ${c.nom} » ?`)) return;
-      compteurs = compteurs.filter(x => x.id !== c.id); sauver(); dessinerListe();
+      compteurs = compteurs.filter(x => x.id !== c.id); sauver(); dessinerListe(); idb.del(c.id).catch(() => {});
       if (editionId === c.id) fermerFormulaire();
     };
     ul.append(li);
@@ -649,6 +1056,7 @@ function numeroterVues() {
     o.value = p; o.textContent = p; o.style.fontFamily = POLICES[p];
     f.police.append(o);
   }
+  for (const k in ANIMS) { const o = document.createElement('option'); o.value = k; o.textContent = ANIMS[k]; f.feteAnim.append(o); }
   f.transDuree.oninput = () => $('#duree-aff').textContent = secondes(f.transDuree.value * 1000);
 })();
 
@@ -662,13 +1070,21 @@ function ouvrirFormulaire(c) {
   f.police.value = c ? c.police : 'Bebas Neue';
   f.fond.value = c ? c.fond : '#1f2937';
   f.message.value = c ? c.message : '';
+  f.texteAuto.checked = !(c && c.texte);
+  f.texte.value = (c && c.texte) || couleurTexte(f.fond.value);
+  const tc = c ? c.tic : TIC_DEFAUT;
+  f.ticSon.value = tc.son; f.ticQuand.value = tc.quand; f.ticVolume.value = tc.volume;
   const fe = c ? c.fete : FETE_DEFAUT;
-  f.feteMsg.value = fe.message; f.musique.value = fe.musique; f.feteDuree.value = fe.duree;
+  f.feteMsg.value = fe.message; f.musique.value = fe.musique; f.feteDuree.value = fe.duree; f.feteAnim.value = fe.anim || 'feu';
+  f.photoMode.value = fe.photoMode || 'polaroid-flou';
+  photoForm = undefined; afficherMiniature(null);
+  if (c && c.fete.photo) idb.get(c.id).then(b => { if (editionId === c.id && photoForm === undefined) afficherMiniature(b); }).catch(() => {});
   $('#vues-editeur').innerHTML = '';
   (c ? c.vues : [VUE_DEFAUT]).forEach(ajouterBlocVue);
   const t = c ? c.transition : TRANS_DEFAUT;
   f.transType.value = t.type;
   f.transDuree.value = t.duree / 1000;
+  f.transAuto.value = t.auto || 0;
   f.transDuree.oninput();
   $('#erreur').textContent = '';
   f.hidden = false; $('#btn-ajouter').hidden = true;
@@ -696,8 +1112,10 @@ $('#formulaire').addEventListener('submit', e => {
   if (finFete(c) <= Date.now()) return err.textContent = 'Cette date est déjà passée.';
   const i = compteurs.findIndex(x => x.id === c.id);
   if (i >= 0) compteurs[i] = c; else compteurs.push(c);
+  if (photoForm) idb.set(c.id, photoForm).catch(() => alert("La photo n'a pas pu être enregistrée (espace insuffisant ?)."));
+  else if (photoForm === null) idb.del(c.id).catch(() => {});
   sauver();
-  courantId = c.id; vueIdx = 0;
+  courantId = c.id; vueIdx = 0; arreterMusique();
   fermerFormulaire(); dessinerListe();
 });
 
@@ -707,15 +1125,45 @@ function lireFormulaire() {
     id: editionId || nouvelId(), nom: f.nom.value.trim() || 'Aperçu',
     cible: `${f.date.value || new Date().toISOString().slice(0, 10)}T${f.heure.value || '00:00'}`,
     police: f.police.value, fond: f.fond.value, message: f.message.value.trim(), vues: [VUE_DEFAUT],
-    transition: { type: f.transType.value, duree: Math.round(f.transDuree.value * 1000) },
-    fete: { message: f.feteMsg.value.trim(), musique: f.musique.value, duree: f.feteDuree.value }
+    texte: f.texteAuto.checked ? '' : f.texte.value,
+    tic: { son: f.ticSon.value, quand: f.ticQuand.value, volume: +f.ticVolume.value },
+    transition: { type: f.transType.value, duree: Math.round(f.transDuree.value * 1000), auto: Math.max(0, Math.round(+f.transAuto.value || 0)) },
+    fete: { message: f.feteMsg.value.trim(), musique: f.musique.value, duree: f.feteDuree.value, anim: f.feteAnim.value,
+      photoMode: f.photoMode.value,
+      photo: photoForm === undefined ? !!(compteurs.find(x => x.id === editionId)?.fete.photo) : !!photoForm }
   };
 }
+// Photo dans le formulaire : undefined = inchangée, Blob = nouvelle, null = retirée
+let photoForm;
+function afficherMiniature(blob) {
+  const im = $('#photo-miniature');
+  if (im.src) URL.revokeObjectURL(im.src);
+  im.hidden = !blob; $('#btn-photo-retirer').hidden = !blob;
+  $('#btn-photo').textContent = blob ? '📷 Changer de photo' : '📷 Choisir une photo';
+  if (blob) im.src = URL.createObjectURL(blob); else im.removeAttribute('src');
+}
+$('#btn-photo').onclick = () => $('#photo-fichier').click();
+$('#photo-fichier').onchange = e => {
+  const fic = e.target.files[0]; e.target.value = '';
+  if (!fic) return;
+  reduirePhoto(fic).then(b => { photoForm = b; afficherMiniature(b); })
+    .catch(() => $('#erreur').textContent = 'Impossible de lire cette image.');
+};
+$('#btn-photo-retirer').onclick = () => { photoForm = null; afficherMiniature(null); };
+$('#formulaire').texte.addEventListener('input', () => $('#formulaire').texteAuto.checked = false);
+$('#btn-ecouter-tic').onclick = () => {
+  const f = $('#formulaire');
+  debloquerAudio().then(() => { for (let i = 0; i < 4; i++) setTimeout(() => jouerTic(f.ticSon.value, +f.ticVolume.value, 4 - i), i * 1000); });
+};
+$('#btn-ecouter-musique').onclick = () => {
+  const m = $('#formulaire').musique.value;
+  debloquerAudio().then(() => musique ? arreterMusique() : jouerMelodie(m));
+};
 $('#btn-apercu').onclick = () => {
-  audio()?.resume();
+  debloquerAudio();
   const c = lireFormulaire();
   $('#vue-reglages').hidden = true; $('#vue-compteur').hidden = false;
-  apercu = { c, fin: Date.now() + 20000 };
+  apercu = { c, fin: Date.now() + 20000, photo: photoForm };
   construire(null);
 };
 
