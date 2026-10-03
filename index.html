@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@600&family=Pacifico&family=Playfair+Display:wght@700&family=Press+Start+2P&family=Roboto+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bungee&family=Fredoka:wght@600&family=Luckiest+Guy&family=Monoton&family=Orbitron:wght@600&family=Pacifico&family=Playfair+Display:wght@700&family=Press+Start+2P&family=Roboto+Mono:wght@500&display=swap">
 <style>
 *{box-sizing:border-box;margin:0}
 [hidden]{display:none!important}
@@ -152,7 +152,6 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
     <ul id="liste"></ul>
     <button id="btn-ajouter" class="btn large">+ Nouveau compteur</button>
     <div class="outils">
-      <button id="btn-demo-fin" class="btn-lien">▶ Voir la démo de fin</button>
       <button id="btn-demo" class="btn-lien">↺ Recréer la démo</button>
     </div>
   </div>
@@ -268,6 +267,10 @@ const POLICES = {
   'Playfair Display': "'Playfair Display',serif",
   'Pacifico': "'Pacifico',cursive",
   'Press Start 2P': "'Press Start 2P',monospace",
+  'Luckiest Guy': "'Luckiest Guy',cursive",
+  'Monoton': "'Monoton',cursive",
+  'Bungee': "'Bungee',sans-serif",
+  'Fredoka': "'Fredoka',sans-serif",
   'Système': "system-ui,sans-serif"
 };
 const STYLES = { flip: 'Palettes', rouleau: 'Rouleau', sobre: 'Sobre' };
@@ -1314,13 +1317,6 @@ compteurs.forEach(c => { if (c.demo && finFete(c) <= Date.now()) { c.cible = pro
 if (!compteurs.length && !localStorage.getItem('compteurs.demo') && !/[?&]voir=/.test(location.search)) creerDemo();
 
 $('#btn-demo').onclick = () => { creerDemo(); courantId = DEMO_ID; dessinerListe(); };
-$('#btn-demo-fin').onclick = () => {
-  debloquerAudio();
-  $('#vue-reglages').hidden = true; $('#vue-compteur').hidden = false;
-  apercu = { c: compteurs.find(c => c.id === DEMO_ID) || compteurDemo(), fin: Date.now() + 40000 };
-  if (!compteurs.some(c => c.id === DEMO_ID)) apercu.photo = null;
-  construire(null);
-};
 
 // ---------- Offrir ----------
 const b64u = {
