@@ -64,7 +64,8 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
 .polaroid img{display:block;max-width:min(70vw,440px);max-height:36vh;object-fit:cover}
 @keyframes polaroid{from{transform:scale(0) rotate(-200deg)}to{transform:rotate(-3deg)}}
 @keyframes apparition{from{opacity:0}}
-#lien-perso{position:fixed;z-index:3;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));white-space:nowrap;background:#ffffffe6;color:#111827;font:600 16px system-ui,sans-serif;text-decoration:none;border-radius:24px;padding:10px 20px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+#lien-perso{position:fixed;z-index:4;left:50%;transform:translateX(-50%);bottom:max(18px,calc(env(safe-area-inset-bottom) + 8px));white-space:nowrap;background:linear-gradient(135deg,#f97316,#ec4899);color:#fff;font:700 19px system-ui,sans-serif;text-decoration:none;border:2px solid #fff;border-radius:30px;padding:13px 26px;box-shadow:0 6px 24px rgba(0,0,0,.5);animation:appel 2.4s ease-in-out infinite}
+@keyframes appel{50%{transform:translateX(-50%) scale(1.06)}}
 #btn-son-off{position:fixed;z-index:3;left:12px;top:max(14px,env(safe-area-inset-top));background:rgba(0,0,0,.4);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:7px 14px;font-size:14px;cursor:pointer;backdrop-filter:blur(4px);animation:clignote 2s ease-in-out infinite}
 @keyframes clignote{50%{opacity:.55}}
 #toast{position:fixed;z-index:10;left:50%;bottom:max(90px,calc(env(safe-area-inset-bottom) + 80px));transform:translateX(-50%);background:#111827ee;color:#fff;border-radius:20px;padding:10px 18px;font-size:.95rem;box-shadow:0 4px 18px rgba(0,0,0,.4)}
@@ -741,9 +742,19 @@ function debloquerAudio() {
     silence.setAttribute('playsinline', '');
   }
   silence.play().catch(() => {});
+  // Après un passage en arrière-plan, l'iPhone laisse le contexte audio « interrompu » et refuse de le relancer :
+  // on le jette et on en recrée un neuf pendant ce geste.
+  if (ac && ac.state !== 'running') {
+    const vieux = ac; ac = null; bruit = null; musique = null;
+    vieux.close().catch(() => {});
+  }
   const a = audio();
   return a ? a.resume().catch(() => {}) : Promise.resolve();
 }
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { arreterMusique(); if (ac) ac.suspend().catch(() => {}); }
+  else majIndicateurSon();
+});
 let sonEtaitCoupe = true;
 ['pointerdown', 'touchend', 'click', 'keydown'].forEach(ev => addEventListener(ev, () => {
   if (ev === 'pointerdown') sonEtaitCoupe = !ac || ac.state !== 'running';
@@ -966,7 +977,7 @@ function dimensionner(n, maxChiffres) {
     const el = etat.scene.querySelector(sel); if (!el || !el.textContent) return t;
     const cs = getComputedStyle(el); return t + el.offsetHeight + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
   }, 0);
-  const dispo = Math.max(60, H - hors - 32 - 40);
+  const dispo = Math.max(60, H - hors - 32 - (modeLien ? 80 : 40));
   const largeurChiffre = etat.v.style === 'flip' ? 1.05 : 0.9;
   let best = { taille: 0, cols: n };
   for (let cols = n; cols >= 1; cols--) {
@@ -1359,7 +1370,7 @@ async function voirLien(code) {
   modeLien = true; cadeauVu = cadeau;
   if (finFete(cadeau) <= Date.now()) cadeau = null;
   courantId = 'cadeau'; vueIdx = 0;
-  $('#btn-reglages').hidden = true; $('#lien-perso').hidden = false;
+  $('#btn-reglages').hidden = true; $('#lien-perso').hidden = false; $('#signature').hidden = true;
   construire(null);
 }
 
