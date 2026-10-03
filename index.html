@@ -1379,8 +1379,8 @@ function afficherAideIOS() {
 // Partager : un simple lien qui contient le compteur
 async function partager(c) {
   const lien = location.origin + location.pathname + '?voir=' + await encoderCadeau(c);
-  const texte = `⏳ ${c.nom} — regarde le compte à rebours !`;
-  if (navigator.share) return navigator.share({ title: c.nom, text: texte, url: lien }).catch(() => {});
+  // Lien seul : sur iPhone, avec un texte en plus, « Copier » ne copie que le texte
+  if (navigator.share) return navigator.share({ url: lien }).catch(() => {});
   navigator.clipboard.writeText(lien).then(() => toast('Lien copié ✓ Colle-le dans un message.'))
     .catch(() => prompt('Copie ce lien :', lien));
 }
