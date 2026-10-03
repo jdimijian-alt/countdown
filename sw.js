@@ -1,6 +1,6 @@
 // Incrémenter la version à chaque déploiement pour forcer la mise à jour
-const CACHE = 'rebours-v9';
-const FICHIERS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+const CACHE = 'rebours-v13';
+const FICHIERS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './qrcode.min.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FICHIERS)));
@@ -16,7 +16,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(caches.open(CACHE).then(async c => {
-    const enCache = await c.match(e.request);
+    const enCache = await c.match(e.request, { ignoreSearch: e.request.mode === 'navigate' });
     const reseau = fetch(e.request).then(r => {
       if (r.ok || r.type === 'opaque') c.put(e.request, r.clone());
       return r;
