@@ -64,21 +64,10 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
 .polaroid img{display:block;max-width:min(70vw,440px);max-height:36vh;object-fit:cover}
 @keyframes polaroid{from{transform:scale(0) rotate(-200deg)}to{transform:rotate(-3deg)}}
 @keyframes apparition{from{opacity:0}}
-#bandeau-cadeau{position:fixed;z-index:3;left:50%;transform:translateX(-50%);bottom:max(44px,calc(env(safe-area-inset-bottom) + 36px));display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
-  background:rgba(17,24,39,.88);color:#fff;border-radius:14px;padding:10px 14px;box-shadow:0 6px 24px rgba(0,0,0,.4);font-size:.95rem;max-width:calc(100% - 80px);backdrop-filter:blur(6px)}
-#btn-garder{position:fixed;z-index:3;right:12px;bottom:max(10px,env(safe-area-inset-bottom));background:rgba(0,0,0,.35);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:6px 12px;font-size:.85rem;cursor:pointer;backdrop-filter:blur(4px)}
-#bandeau-cadeau .btn{padding:7px 12px;font-size:.9rem;text-decoration:none}
-.outils{display:flex;gap:16px;flex-wrap:wrap;margin:6px 0 10px}
-details.import{margin:8px 0 14px;font-size:.95rem}
-details.import summary{cursor:pointer;color:#93c5fd}
-details.import .ligne{margin-top:8px}
-details.import input{flex:1;min-width:0;background:#111827;color:#f9fafb;border:1px solid #374151;border-radius:6px;padding:8px}
-dialog{background:#1f2937;color:#f9fafb;border:0;border-radius:14px;padding:18px;max-width:min(92vw,420px);width:100%}
-dialog::backdrop{background:rgba(0,0,0,.6)}
-dialog h3{margin-bottom:10px}
-#qr{display:flex;justify-content:center;margin:12px 0;background:#fff;border-radius:8px;padding:10px}
-#qr canvas{max-width:100%;height:auto;image-rendering:pixelated}
-#lien-cadeau{width:100%;background:#111827;color:#9ca3af;border:1px solid #374151;border-radius:6px;padding:8px;font-size:.8rem}
+#lien-perso{position:fixed;z-index:3;right:12px;bottom:max(10px,env(safe-area-inset-bottom));color:inherit;opacity:.6;font:13px system-ui,sans-serif;text-decoration:underline}
+#btn-son-off{position:fixed;z-index:3;left:12px;top:max(14px,env(safe-area-inset-top));background:rgba(0,0,0,.4);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:7px 14px;font-size:14px;cursor:pointer;backdrop-filter:blur(4px);animation:clignote 2s ease-in-out infinite}
+@keyframes clignote{50%{opacity:.55}}
+#toast{position:fixed;z-index:10;left:50%;bottom:max(90px,calc(env(safe-area-inset-bottom) + 80px));transform:translateX(-50%);background:#111827ee;color:#fff;border-radius:20px;padding:10px 18px;font-size:.95rem;box-shadow:0 4px 18px rgba(0,0,0,.4)}
 .photo-form{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .photo-form img{width:72px;height:72px;object-fit:cover;border-radius:6px}
 .fete canvas{z-index:0}
@@ -90,30 +79,49 @@ dialog h3{margin-bottom:10px}
 .btn-son{position:absolute;bottom:max(60px,calc(env(safe-area-inset-bottom) + 50px));left:50%;transform:translateX(-50%);background:#ffffff22;color:#fff;border:1px solid #ffffff55;border-radius:30px;padding:12px 22px;font-size:1.1rem;cursor:pointer;backdrop-filter:blur(4px)}
 
 /* ---- Vue réglages ---- */
-#vue-reglages{height:100dvh;overflow:auto;padding:max(16px,env(safe-area-inset-top)) 16px 40px;max-width:560px;margin:0 auto}
+#vue-reglages{height:100dvh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.page{max-width:560px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 16px 120px}
 #vue-reglages header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-#vue-reglages h2{font-size:1.3rem}
-.btn{background:#3b82f6;color:#fff;border:0;border-radius:8px;padding:10px 16px;font-size:1rem;cursor:pointer}
+#vue-reglages h2{font-size:1.3rem;flex:1}
+.btn{background:#3b82f6;color:#fff;border:0;border-radius:10px;padding:11px 18px;font-size:16px;cursor:pointer;touch-action:manipulation}
 .btn.secondaire{background:#374151}
-.btn-lien{background:none;border:0;color:#93c5fd;font-size:1rem;cursor:pointer;padding:6px 0;align-self:flex-start}
-#liste{list-style:none;padding:0;margin-bottom:16px}
-#liste li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;background:#1f2937;border-radius:8px;margin-bottom:8px;border-left:6px solid var(--c)}
+.btn.large{width:100%;padding:14px;font-size:17px}
+.btn-lien{background:none;border:0;color:#93c5fd;font-size:16px;cursor:pointer;padding:6px 0;align-self:flex-start;touch-action:manipulation}
+#liste{list-style:none;padding:0;margin:0 0 16px}
+#liste li{padding:12px 14px;background:#1f2937;border-radius:12px;margin-bottom:10px;border-left:6px solid var(--c)}
 #liste li.passe{opacity:.45}
+#liste strong{font-size:1.05rem}
 #liste small{display:block;opacity:.7;margin-top:2px}
-#liste li button{background:none;border:0;color:#93c5fd;cursor:pointer;font-size:.9rem;padding:4px}
-#formulaire{background:#1f2937;border-radius:10px;padding:16px;margin-top:16px;display:flex;flex-direction:column;gap:14px}
-#formulaire label{display:flex;flex-direction:column;gap:4px;font-size:.9rem}
-#formulaire input:not([type=checkbox]):not([type=radio]):not([type=range]),#formulaire select{background:#111827;color:#f9fafb;border:1px solid #374151;border-radius:6px;padding:8px;font-size:1rem}
-#formulaire input[type=color]{height:42px;padding:2px}
-#formulaire fieldset{border:1px solid #374151;border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:10px}
-#formulaire legend{font-size:.9rem;padding:0 4px}
-.groupe{display:flex;flex-wrap:wrap;gap:6px 16px}
-.groupe-titre{font-size:.8rem;opacity:.7;width:100%}
-#formulaire .groupe label{flex-direction:row;align-items:center;gap:6px;font-size:1rem}
-.ligne{display:flex;gap:10px}.ligne>label{flex:1}
-.actions{display:flex;justify-content:flex-end;gap:10px}
-.erreur{color:#f87171;font-size:.9rem;min-height:1em}
-.aide{font-size:.8rem;opacity:.6}
+.li-actions{display:flex;gap:18px;margin-top:8px}
+.li-actions button{background:none;border:0;color:#93c5fd;cursor:pointer;font-size:15px;padding:4px 0}
+.li-actions button[data-a=sup]{color:#fca5a5;margin-left:auto}
+.outils{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;padding-top:14px;border-top:1px solid #374151}
+/* Formulaire en sections */
+#formulaire{display:flex;flex-direction:column;gap:12px}
+.section{background:#1f2937;border-radius:12px;overflow:hidden}
+.section>summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:600;font-size:1.05rem;display:flex;align-items:center;gap:10px}
+.section>summary::-webkit-details-marker{display:none}
+.section>summary::after{content:'▾';margin-left:auto;opacity:.6;transition:transform .2s}
+.section:not([open])>summary::after{transform:rotate(-90deg)}
+.corps{padding:2px 16px 16px;display:flex;flex-direction:column;gap:14px}
+#formulaire label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:#d1d5db;min-width:0}
+#formulaire input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),#formulaire select{
+  width:100%;max-width:100%;min-width:0;box-sizing:border-box;background:#111827;color:#f9fafb;border:1px solid #374151;border-radius:8px;padding:10px;font-size:16px;min-height:44px;-webkit-appearance:none;appearance:none}
+#formulaire select{background-image:linear-gradient(45deg,transparent 50%,#9ca3af 50%),linear-gradient(135deg,#9ca3af 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:30px}
+#formulaire input[type=date],#formulaire input[type=time]{display:block}
+#formulaire input[type=color]{width:100%;height:44px;padding:2px;border:1px solid #374151;border-radius:8px;background:#111827}
+#formulaire input[type=range]{width:100%}
+#formulaire fieldset{border:1px solid #374151;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+#formulaire legend{font-size:14px;padding:0 6px;color:#d1d5db}
+.groupe{display:flex;flex-wrap:wrap;gap:8px 18px}
+.groupe-titre{font-size:13px;opacity:.7;width:100%}
+#formulaire .groupe label{flex-direction:row;align-items:center;gap:6px;font-size:16px;color:#f9fafb}
+#formulaire input[type=checkbox],#formulaire input[type=radio]{width:20px;height:20px}
+.ligne{display:flex;gap:12px;min-width:0}.ligne>*{flex:1 1 0;min-width:0}
+.barre{position:fixed;left:0;right:0;bottom:0;z-index:5;background:#111827f2;border-top:1px solid #374151;padding:12px 16px max(12px,env(safe-area-inset-bottom));display:flex;gap:12px;justify-content:center;backdrop-filter:blur(6px)}
+.barre .btn{flex:1;max-width:260px}
+.erreur{color:#f87171;font-size:15px;min-height:1em}
+.aide{font-size:13px;opacity:.6}
 </style>
 </head>
 <body>
@@ -122,56 +130,64 @@ dialog h3{margin-bottom:10px}
   <button id="btn-reglages" aria-label="Réglages">⚙</button>
   <nav id="points"></nav>
   <nav id="points-vues"></nav>
-  <small id="signature">Joe · octobre 2026</small>
-  <div id="bandeau-cadeau" hidden></div>
-  <button id="btn-garder" hidden>＋ Garder</button>
+  <button id="btn-son-off" hidden>🔇 Touche l'écran pour le son</button>
+  <small id="signature">Joe Dilmijian · octobre 2026</small>
+  <a id="lien-perso" href="./" hidden>Crée ton propre compteur</a>
 </main>
+<div id="toast" hidden></div>
 
 <section id="vue-reglages" hidden>
-  <header><button id="btn-retour" class="btn-lien">← Retour</button><h2>Mes compteurs</h2></header>
-  <ul id="liste"></ul>
-  <div class="outils">
-    <button id="btn-demo-fin" class="btn-lien">▶ Voir la démo de fin</button>
-    <button id="btn-demo" class="btn-lien">↺ Recréer la démo</button>
+ <div class="page">
+  <header><button id="btn-retour" class="btn-lien">← Retour</button><h2 id="titre-reglages">Mes compteurs</h2></header>
+
+  <div id="ecran-liste">
+    <ul id="liste"></ul>
+    <button id="btn-ajouter" class="btn large">+ Nouveau compteur</button>
+    <div class="outils">
+      <button id="btn-demo-fin" class="btn-lien">▶ Voir la démo de fin</button>
+      <button id="btn-demo" class="btn-lien">↺ Recréer la démo</button>
+    </div>
   </div>
-  <details class="import"><summary>🎁 Importer un cadeau (coller le lien reçu)</summary>
-    <div class="ligne"><input id="lien-import" placeholder="https://…?c=…"><button id="btn-import" class="btn secondaire">Importer</button></div>
-  </details>
-  <button id="btn-ajouter" class="btn">+ Nouveau compteur</button>
+
   <form id="formulaire" hidden novalidate>
-    <h3 id="titre-form">Nouveau compteur</h3>
-    <label>Nom<input name="nom" maxlength="60" placeholder="Départ à la retraite"></label>
-    <div class="ligne">
-      <label>Date<input type="date" name="date"></label>
-      <label>Heure<input type="time" name="heure" value="00:00"></label>
-    </div>
-    <div class="ligne">
-      <label>Police<select name="police"></select></label>
-      <label>Couleur de fond<input type="color" name="fond" value="#1f2937"></label>
-    </div>
-    <div class="ligne">
-      <label>Couleur du texte<input type="color" name="texte" value="#f9fafb"></label>
-      <div class="groupe" style="align-items:flex-end"><label><input type="checkbox" name="texteAuto" checked>Automatique (contraste)</label></div>
-    </div>
-    <label>Message (affiché sous les chiffres)<input name="message" maxlength="80" placeholder="…avant la retraite !"></label>
-    <div id="vues-editeur"></div>
-    <button type="button" id="btn-ajout-vue" class="btn-lien">+ Ajouter une vue</button>
-    <p class="aide">Toucher l'écran (ou ↑ ↓) pour changer de vue, balayer (ou ← →) pour changer de compteur. La plus grande unité cochée affiche le total.</p>
-    <fieldset><legend>Transition</legend>
+    <details class="section" open><summary>📅 L'événement</summary><div class="corps">
+      <label>Nom<input name="nom" maxlength="60" placeholder="Départ à la retraite"></label>
       <div class="ligne">
-        <label>Type<select name="transType">
+        <label>Date<input type="date" name="date"></label>
+        <label>Heure<input type="time" name="heure" value="00:00"></label>
+      </div>
+      <label>Message sous les chiffres<input name="message" maxlength="80" placeholder="…avant la retraite !"></label>
+    </div></details>
+
+    <details class="section"><summary>🎨 Apparence</summary><div class="corps">
+      <label>Police<select name="police"></select></label>
+      <div class="ligne">
+        <label>Fond<input type="color" name="fond" value="#1f2937"></label>
+        <label>Texte<input type="color" name="texte" value="#f9fafb"></label>
+      </div>
+      <div class="groupe"><label><input type="checkbox" name="texteAuto" checked>Couleur du texte automatique</label></div>
+    </div></details>
+
+    <details class="section"><summary>🔢 Affichage</summary><div class="corps">
+      <p class="aide">Toucher l'écran pour changer de vue, balayer pour changer de compteur. La plus grande unité cochée affiche le total.</p>
+      <div id="vues-editeur" style="display:flex;flex-direction:column;gap:12px"></div>
+      <button type="button" id="btn-ajout-vue" class="btn-lien">+ Ajouter une vue</button>
+      <div class="ligne">
+        <label>Transition<select name="transType">
           <option value="glissement">Glissement</option>
           <option value="fondu">Fondu</option>
           <option value="zoom">Zoom</option>
           <option value="aucune">Aucune</option>
         </select></label>
-        <label>Durée : <output id="duree-aff"></output><input type="range" name="transDuree" min="0.2" max="5" step="0.1" value="0.6"></label>
+        <label>Vue suivante auto (s)<input type="number" inputmode="numeric" name="transAuto" min="0" max="3600" step="1" value="0"></label>
       </div>
-      <label>Vue suivante automatique après (s, 0 = jamais)<input type="number" name="transAuto" min="0" max="3600" step="1" value="0"></label>
-    </fieldset>
-    <fieldset><legend>Son du temps qui passe</legend>
+      <label>Durée de la transition : <output id="duree-aff"></output><input type="range" name="transDuree" min="0.2" max="5" step="0.1" value="0.6"></label>
+      <p class="aide">Vue suivante auto : 0 = jamais.</p>
+    </div></details>
+
+    <details class="section"><summary>🔊 Son</summary><div class="corps">
       <div class="ligne">
-        <label>Son<select name="ticSon">
+        <label>Tic-tac<select name="ticSon">
           <option value="aucun">Aucun</option>
           <option value="pendule">Pendule</option>
           <option value="horloge">Horloge</option>
@@ -187,8 +203,9 @@ dialog h3{margin-bottom:10px}
       </div>
       <label>Volume<input type="range" name="ticVolume" min="0.05" max="1" step="0.05" value="0.5"></label>
       <button type="button" id="btn-ecouter-tic" class="btn-lien">▶ Écouter</button>
-    </fieldset>
-    <fieldset><legend>Jour J</legend>
+    </div></details>
+
+    <details class="section"><summary>🎉 Le jour J</summary><div class="corps">
       <label>Message<input name="feteMsg" maxlength="60" placeholder="C'est le grand jour !"></label>
       <div class="ligne">
         <label>Musique<select name="musique">
@@ -200,49 +217,40 @@ dialog h3{margin-bottom:10px}
           <option value="aida">Marche triomphale (Aïda)</option>
           <option value="aucune">Aucune</option>
         </select></label>
-        <label>Durée de la fête<select name="feteDuree">
-          <option value="minuit">Jusqu'à minuit</option>
-          <option value="1h">1 heure</option>
-          <option value="24h">24 heures</option>
-        </select></label>
+        <label>Animation<select name="feteAnim"></select></label>
       </div>
-      <label>Animation<select name="feteAnim"></select></label>
+      <button type="button" id="btn-ecouter-musique" class="btn-lien">♪ Écouter la musique</button>
       <div class="photo-form">
         <img id="photo-miniature" alt="" hidden>
         <button type="button" id="btn-photo" class="btn-lien">📷 Choisir une photo</button>
         <button type="button" id="btn-photo-retirer" class="btn-lien" hidden>Retirer</button>
         <input type="file" id="photo-fichier" accept="image/*" hidden>
       </div>
-      <label>Affichage de la photo<select name="photoMode">
-        <option value="polaroid-flou">Polaroid sur fond flou</option>
-        <option value="polaroid">Polaroid seul</option>
-        <option value="fond">Plein écran</option>
-      </select></label>
-      <div class="groupe"><button type="button" id="btn-ecouter-musique" class="btn-lien">♪ Écouter la musique</button>
-      <button type="button" id="btn-apercu" class="btn-lien">▶ Aperçu de la fête</button></div>
-    </fieldset>
+      <div class="ligne">
+        <label>Photo<select name="photoMode">
+          <option value="polaroid-flou">Polaroid, fond flou</option>
+          <option value="polaroid">Polaroid seul</option>
+          <option value="fond">Plein écran</option>
+        </select></label>
+        <label>Durée de la fête<select name="feteDuree">
+          <option value="minuit">Jusqu'à minuit</option>
+          <option value="1h">1 heure</option>
+          <option value="24h">24 heures</option>
+        </select></label>
+      </div>
+      <button type="button" id="btn-apercu" class="btn secondaire">▶ Aperçu de la fête</button>
+    </div></details>
+
     <p id="erreur" class="erreur"></p>
-    <button type="button" id="btn-offrir" class="btn-lien">🎁 Offrir ce compteur</button>
-    <div class="actions">
+    <div class="barre">
       <button type="button" id="btn-annuler" class="btn secondaire">Annuler</button>
       <button type="submit" class="btn">Enregistrer</button>
     </div>
   </form>
+ </div>
 </section>
 
-<dialog id="dlg-offrir">
-  <h3>🎁 Offrir « <span id="offrir-nom"></span> »</h3>
-  <p class="aide">Le destinataire verra le compteur en ouvrant le lien et pourra l'ajouter aux siens, puis y mettre sa propre photo.</p>
-  <div id="qr"></div>
-  <input id="lien-cadeau" readonly>
-  <div class="actions" style="margin-top:12px">
-    <button type="button" id="btn-copier" class="btn secondaire">Copier le lien</button>
-    <button type="button" id="btn-partager" class="btn">Partager…</button>
-  </div>
-  <div class="actions" style="margin-top:8px"><button type="button" id="btn-fermer-offrir" class="btn-lien">Fermer</button></div>
-</dialog>
 
-<script src="qrcode.min.js"></script>
 <script>
 const CLE = 'compteurs.v1';
 const POLICES = {
@@ -736,7 +744,11 @@ function debloquerAudio() {
   const a = audio();
   return a ? a.resume().catch(() => {}) : Promise.resolve();
 }
-['pointerdown', 'keydown'].forEach(ev => addEventListener(ev, () => { if (!ac || ac.state !== 'running') debloquerAudio(); }, { capture: true }));
+let sonEtaitCoupe = true;
+['pointerdown', 'touchend', 'click', 'keydown'].forEach(ev => addEventListener(ev, () => {
+  if (ev === 'pointerdown') sonEtaitCoupe = !ac || ac.state !== 'running';
+  if (!ac || ac.state !== 'running') debloquerAudio();
+}, { capture: true }));
 
 function freq(n) {
   const m = n.match(/^([A-G])(#|b)?(\d)$/);
@@ -967,6 +979,14 @@ addEventListener('resize', () => { if (etat && !etat.fete) { const o = Object.va
 
 // Son à chaque seconde
 let derniereSeconde = null;
+// Le navigateur exige un toucher à chaque lancement avant de jouer un son
+function sonVoulu() { return !!etat && !etat.fete && !!etat.c.tic && etat.c.tic.son !== 'aucun'; }  // pendant la fête, le bouton « Lancer la musique » s'en charge
+function majIndicateurSon() {
+  const coupe = sonVoulu() && (!ac || ac.state !== 'running') && $('#vue-reglages').hidden;
+  $('#btn-son-off').hidden = !coupe;
+}
+$('#btn-son-off').onclick = () => debloquerAudio().then(majIndicateurSon);
+setInterval(majIndicateurSon, 500);
 function tictac(resteMs) {
   const t = etat.c.tic;
   const sec = Math.ceil(resteMs / 1000);
@@ -1021,14 +1041,14 @@ function changerVue(delta) {
 // Toucher = vue suivante ; balayage horizontal = compteur ; vertical = vue
 let p0 = null;
 $('#vue-compteur').addEventListener('pointerdown', e => {
-  p0 = e.target.closest('button') ? null : { x: e.clientX, y: e.clientY };
+  p0 = e.target.closest('button') ? null : { x: e.clientX, y: e.clientY, sonCoupe: sonVoulu() && sonEtaitCoupe };
 });
 $('#vue-compteur').addEventListener('pointerup', e => {
   if (!p0) return;
-  const dx = e.clientX - p0.x, dy = e.clientY - p0.y; p0 = null;
+  const dx = e.clientX - p0.x, dy = e.clientY - p0.y, p0s = p0; p0 = null;
   if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) changerCompteur(dx < 0 ? 1 : -1);
   else if (Math.abs(dy) > 50) changerVue(dy < 0 ? 1 : -1);
-  else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { if (etat && etat.fete) { const r = etat.scene.getBoundingClientRect(); toucherFete(e.clientX - r.left, e.clientY - r.top); } else changerVue(1); }
+  else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { if (p0s.sonCoupe) return; if (etat && etat.fete) { const r = etat.scene.getBoundingClientRect(); toucherFete(e.clientX - r.left, e.clientY - r.top); } else changerVue(1); }
 });
 document.addEventListener('keydown', e => {
   if (!$('#vue-reglages').hidden) return;
@@ -1060,12 +1080,12 @@ function dessinerListe() {
     const li = document.createElement('li');
     if (finFete(c) <= t) li.className = 'passe';
     li.style.setProperty('--c', c.fond);
-    li.innerHTML = '<div><strong></strong><small></small></div><div><button data-a="off">Offrir</button><button data-a="mod">Modifier</button><button data-a="sup">Supprimer</button></div>';
+    li.innerHTML = '<strong></strong><small></small><div class="li-actions"><button data-a="mod">✏️ Modifier</button><button data-a="off">📤 Partager</button><button data-a="sup">Supprimer</button></div>';
     li.querySelector('strong').textContent = c.nom;
     const nbV = c.vues.length > 1 ? ` · ${c.vues.length} vues` : '';
     li.querySelector('small').textContent = formatDate(c.cible) + nbV + (li.className ? ' — terminé' : enFete(c, t) ? ' — 🎉 en fête' : '');
     li.querySelector('[data-a=mod]').onclick = () => ouvrirFormulaire(c);
-    li.querySelector('[data-a=off]').onclick = () => offrir(c);
+    li.querySelector('[data-a=off]').onclick = () => partager(c);
     li.querySelector('[data-a=sup]').onclick = () => {
       if (!confirm(`Supprimer « ${c.nom} » ?`)) return;
       compteurs = compteurs.filter(x => x.id !== c.id); sauver(); dessinerListe(); idb.del(c.id).catch(() => {});
@@ -1113,7 +1133,9 @@ function numeroterVues() {
 function ouvrirFormulaire(c) {
   const f = $('#formulaire');
   editionId = c ? c.id : null;
-  $('#titre-form').textContent = c ? 'Modifier le compteur' : 'Nouveau compteur';
+  $('#titre-reglages').textContent = c ? 'Modifier' : 'Nouveau compteur';
+  $('#ecran-liste').hidden = true;
+  f.querySelectorAll('details.section').forEach((d, i) => d.open = i === 0);
   f.nom.value = c ? c.nom : '';
   f.date.value = c ? c.cible.slice(0, 10) : '';
   f.heure.value = c ? c.cible.slice(11, 16) : '00:00';
@@ -1137,11 +1159,11 @@ function ouvrirFormulaire(c) {
   f.transAuto.value = t.auto || 0;
   f.transDuree.oninput();
   $('#erreur').textContent = '';
-  f.hidden = false; $('#btn-ajouter').hidden = true;
-  f.nom.focus();
+  f.hidden = false; $('#vue-reglages').scrollTop = 0;
 }
 function fermerFormulaire() {
-  $('#formulaire').hidden = true; $('#btn-ajouter').hidden = false; editionId = null;
+  $('#formulaire').hidden = true; $('#ecran-liste').hidden = false; editionId = null;
+  $('#titre-reglages').textContent = 'Mes compteurs'; arreterMusique();
 }
 
 $('#formulaire').addEventListener('submit', e => {
@@ -1223,7 +1245,7 @@ function finApercu() {
   $('#vue-compteur').hidden = true; $('#vue-reglages').hidden = false;
 }
 $('#btn-reglages').onclick = () => apercu ? finApercu() : ouvrirReglages(false);
-$('#btn-retour').onclick = fermerReglages;
+$('#btn-retour').onclick = () => $('#formulaire').hidden ? fermerReglages() : fermerFormulaire();
 $('#btn-ajouter').onclick = () => ouvrirFormulaire(null);
 $('#btn-annuler').onclick = fermerFormulaire;
 $('#btn-ajout-vue').onclick = () => ajouterBlocVue({ unites: ['jour'], style: 'sobre' });
@@ -1264,7 +1286,7 @@ function creerDemo() {
 }
 // La démo vise toujours le prochain Nouvel An
 compteurs.forEach(c => { if (c.demo && finFete(c) <= Date.now()) { c.cible = prochainNouvelAn(); sauver(); } });
-if (!compteurs.length && !localStorage.getItem('compteurs.demo') && !/[?&]c=|#offrir=/.test(location.href)) creerDemo();
+if (!compteurs.length && !localStorage.getItem('compteurs.demo') && !/[?&]voir=/.test(location.search)) creerDemo();
 
 $('#btn-demo').onclick = () => { creerDemo(); courantId = DEMO_ID; dessinerListe(); };
 $('#btn-demo-fin').onclick = () => {
@@ -1314,122 +1336,33 @@ function assainir(o) {
       anim: parmi(fe.anim, Object.keys(ANIMS), 'feu'), photoMode: parmi(fe.photoMode, ['polaroid-flou', 'polaroid', 'fond'], 'polaroid-flou'), photo: false }
   });
 }
-async function offrir(c) {
-  const lien = location.origin + location.pathname + '?c=' + await encoderCadeau(c);
-  $('#offrir-nom').textContent = c.nom;
-  $('#lien-cadeau').value = lien;
-  const qr = $('#qr'); qr.innerHTML = '';
-  try {
-    const q = qrcode(0, 'L'); q.addData(lien); q.make();
-    const n = q.getModuleCount(), tm = 4, cv = document.createElement('canvas');
-    cv.width = cv.height = (n + 8) * tm;
-    const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); g.fillStyle = '#000';
-    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (q.isDark(y, x)) g.fillRect((x + 4) * tm, (y + 4) * tm, tm, tm);
-    qr.append(cv); qr.hidden = false;
-  } catch { qr.hidden = true; }
-  $('#btn-partager').hidden = !navigator.share;
-  $('#btn-partager').onclick = () => navigator.share({ title: c.nom, text: `🎁 ${c.nom} — un compte à rebours pour toi !`, url: lien }).catch(() => {});
-  $('#btn-copier').onclick = () => navigator.clipboard.writeText(lien).then(() => $('#btn-copier').textContent = 'Copié ✓').catch(() => { $('#lien-cadeau').select(); });
-  $('#btn-copier').textContent = 'Copier le lien';
-  $('#dlg-offrir').showModal();
+// Partager : un simple lien qui contient le compteur
+async function partager(c) {
+  const lien = location.origin + location.pathname + '?voir=' + await encoderCadeau(c);
+  const texte = `⏳ ${c.nom} — regarde le compte à rebours !`;
+  if (navigator.share) return navigator.share({ title: c.nom, text: texte, url: lien }).catch(() => {});
+  navigator.clipboard.writeText(lien).then(() => toast('Lien copié ✓ Colle-le dans un message.'))
+    .catch(() => prompt('Copie ce lien :', lien));
 }
-$('#btn-fermer-offrir').onclick = () => $('#dlg-offrir').close();
-$('#btn-offrir').onclick = () => {
-  const f = $('#formulaire');
-  if (!f.date.value) return $('#erreur').textContent = 'Choisir une date avant d\'offrir.';
-  const c = lireFormulaire();
-  c.vues = [...document.querySelectorAll('.bloc-vue')].map(b => ({
-    style: b.querySelector('input[type=radio]:checked')?.value || 'flip',
-    unites: [...b.querySelectorAll('input[type=checkbox]:checked')].map(cb => cb.value)
-  })).filter(v => v.unites.length);
-  if (!c.vues.length) c.vues = [VUE_DEFAUT];
-  offrir(c);
-};
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(t._t); t._t = setTimeout(() => t.hidden = true, 3000); }
 
-// Réception d'un cadeau
-// Contexte d'ouverture : appli installée, iPhone, navigateur intégré d'une appli (Messenger, Instagram…)
-const UA = navigator.userAgent;
-const estIOS = /iPhone|iPad|iPod/.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1);
-const estAndroid = /Android/.test(UA);
-const estInstallee = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
-const estIntegre = /FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\/|Snapchat|LinkedInApp|Twitter|TikTok|musical_ly|BytedanceWebview|GSA\//i.test(UA);
-const CLE_RECUS = 'compteurs.recus';
-const recus = () => { try { return JSON.parse(localStorage.getItem(CLE_RECUS)) || []; } catch { return []; } };
-const empreinte = code => code.slice(-24);
-
-function bandeau(html) { const b = $('#bandeau-cadeau'); b.innerHTML = html; b.hidden = false; return b; }
-function ajouterCadeau() {
-  const c = { ...cadeau, id: nouvelId() };
-  compteurs.push(c); sauver();
-  try { localStorage.setItem(CLE_RECUS, JSON.stringify([...recus(), cadeau.empreinte].slice(-50))); } catch {}
-  finCadeau(); courantId = c.id; construire(null);
-}
-
-async function recevoirCadeau(code) {
+// Ouverture d'un lien partagé : on montre l'événement, rien d'autre
+async function voirLien(code) {
   try { cadeau = await decoderCadeau(code); }
-  catch { alert('Ce lien de cadeau est invalide ou incomplet.'); return; }
-  cadeau.empreinte = empreinte(code);
-  if (finFete(cadeau) <= Date.now()) {
-    if (estInstallee) { cadeau = null; construire(null); return; }
-    modeLien = true; cadeauVu = cadeau; cadeau = null;
-    $('#btn-reglages').hidden = true; $('#vue-reglages').hidden = true; $('#vue-compteur').hidden = false;
-    construire(null); return;
-  }
-  $('#vue-reglages').hidden = true; $('#vue-compteur').hidden = false;
-
-  // Appli installée depuis le lien du cadeau : ajout automatique, une seule fois
-  if (estInstallee) {
-    if (recus().includes(cadeau.empreinte)) { cadeau = null; construire(null); return; }
-    ajouterCadeau();
-    const b = bandeau(`🎁 Compteur ajouté !`); setTimeout(() => { b.hidden = true; }, 4000);
-    return;
-  }
-  // Simple lien : on montre le compteur, rien d'autre. « ＋ Garder » propose de l'ajouter.
+  catch { toast('Ce lien est incomplet ou abîmé.'); return; }
   modeLien = true; cadeauVu = cadeau;
+  if (finFete(cadeau) <= Date.now()) cadeau = null;
   courantId = 'cadeau'; vueIdx = 0;
-  $('#btn-reglages').hidden = true; $('#btn-garder').hidden = false;
+  $('#btn-reglages').hidden = true; $('#lien-perso').hidden = false;
   construire(null);
 }
-function proposerGarder() {
-  const plusTard = `<button class="btn secondaire" data-b="ignorer">Plus tard</button>`;
-  let b;
-  if (estIntegre) {
-    const ouvrir = estIOS ? 'x-safari-' + location.href
-      : estAndroid ? `intent://${location.host}${location.pathname}${location.search}#Intent;scheme=https;end` : location.href;
-    b = bandeau(`Pour garder ce compteur, ouvre-le dans ${estIOS ? 'Safari' : 'ton navigateur'}
-      <a class="btn" href="${ouvrir}">Ouvrir dans ${estIOS ? 'Safari' : 'le navigateur'}</a>
-      <button class="btn secondaire" data-b="copier">Copier le lien</button>
-      <small style="width:100%;text-align:center;opacity:.75">Sinon : menu ⋯ en haut → « Ouvrir dans le navigateur »</small> ${plusTard}`);
-  } else if (estIOS) {
-    b = bandeau(`Pour garder ce compteur : touche <b>Partager</b> ⬆︎ puis <b>« Sur l'écran d'accueil »</b>. ${plusTard}`);
-  } else {
-    b = bandeau(`<button class="btn" data-b="ajouter">Ajouter à mes compteurs</button> ${plusTard}`);
-  }
-  b.onclick = e => {
-    const a = e.target.dataset.b;
-    if (a === 'ajouter') { modeLien = false; $('#btn-reglages').hidden = false; $('#btn-garder').hidden = true; ajouterCadeau(); }
-    if (a === 'ignorer') b.hidden = true;
-    if (a === 'copier') navigator.clipboard.writeText(location.href).then(() => e.target.textContent = 'Copié ✓').catch(() => prompt('Copie ce lien :', location.href));
-  };
-}
-$('#btn-garder').onclick = proposerGarder;
-function finCadeau() { cadeau = null; $('#bandeau-cadeau').hidden = true; }
-$('#btn-import').onclick = () => {
-  const m = $('#lien-import').value.match(/(?:[?&]c=|#offrir=)([zj][A-Za-z0-9_-]+)/);
-  if (!m) return alert("Lien non reconnu : ce n'est pas un lien de cadeau.");
-  $('#lien-import').value = ''; recevoirCadeau(m[1]);
-};
 
 // ---------- Démarrage ----------
 construire(null);
-// Lien de cadeau : ?c=… (ou ancien format #offrir=…). On garde l'adresse telle quelle
-// tant que l'appli n'est pas installée, pour que « Sur l'écran d'accueil » emporte le cadeau.
-function lienCadeau() {
-  const m = location.search.match(/[?&]c=([zj][A-Za-z0-9_-]+)/) || location.hash.match(/^#offrir=([zj][A-Za-z0-9_-]+)/);
-  if (m) recevoirCadeau(m[1]);
+{
+  const m = location.search.match(/[?&]voir=([zj][A-Za-z0-9_-]+)/);
+  if (m) voirLien(m[1]);
 }
-lienCadeau();
-addEventListener('hashchange', lienCadeau);
 (function boucle() { maj(); setTimeout(boucle, 1000 - (Date.now() % 1000) + 10); })();
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');

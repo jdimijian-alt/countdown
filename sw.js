@@ -1,6 +1,6 @@
 // Incrémenter la version à chaque déploiement pour forcer la mise à jour
-const CACHE = 'rebours-v13';
-const FICHIERS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './qrcode.min.js'];
+const CACHE = 'rebours-v15';
+const FICHIERS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FICHIERS)));
