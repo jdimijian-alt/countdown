@@ -24,8 +24,8 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
 #vue-compteur{position:relative;height:100dvh;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 .scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;will-change:transform,opacity}
 #btn-reglages{position:fixed;z-index:2;top:max(12px,env(safe-area-inset-top));right:14px;background:none;border:0;color:inherit;font-size:1.7rem;opacity:.55;cursor:pointer}
-.titre{font-size:clamp(1.4rem,6vw,3.2rem);font-weight:inherit;text-align:center;margin-bottom:.3em}
-.cible{font-family:system-ui,sans-serif;opacity:.7;font-size:clamp(.8rem,3vw,1.1rem);margin-bottom:2.2rem;text-align:center}
+.titre{font-size:clamp(1.1rem,min(6vw,7vh),3.2rem);font-weight:inherit;text-align:center;margin-bottom:.3em}
+.cible{font-family:system-ui,sans-serif;opacity:.7;font-size:clamp(.75rem,min(3vw,3.5vh),1.1rem);margin-bottom:min(2.2rem,4vh);text-align:center}
 .unites{display:flex;flex-wrap:wrap;justify-content:center;column-gap:var(--gap,3vw);row-gap:1rem;width:100%}
 .unite{display:flex;flex-direction:column;align-items:center;flex:0 0 calc((100% - (var(--cols,6) - 1) * var(--gap,3vw)) / var(--cols,6))}
 .valeur{display:flex;gap:.06em;font-size:var(--taille,5rem);line-height:1}
@@ -51,7 +51,7 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
 .point.actif{opacity:.9}
 #signature{position:fixed;z-index:2;left:12px;bottom:max(8px,env(safe-area-inset-bottom));font:10px system-ui,sans-serif;opacity:.35;pointer-events:none}
 .vide{font-size:1.2rem;margin-bottom:1.2rem;opacity:.8}
-.message{font-size:clamp(1.1rem,4.5vw,2.4rem);margin-top:1.8rem;text-align:center;opacity:.9}
+.message{font-size:clamp(.95rem,min(4.5vw,6vh),2.4rem);margin-top:min(1.8rem,3.5vh);text-align:center;opacity:.9}
 
 /* ---- Jour J ---- */
 .fete{background:radial-gradient(ellipse at 50% 120%,#312e81,#0b1026 60%,#020617)!important;color:#fff}
@@ -64,7 +64,7 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
 .polaroid img{display:block;max-width:min(70vw,440px);max-height:36vh;object-fit:cover}
 @keyframes polaroid{from{transform:scale(0) rotate(-200deg)}to{transform:rotate(-3deg)}}
 @keyframes apparition{from{opacity:0}}
-#lien-perso{position:fixed;z-index:3;right:12px;bottom:max(10px,env(safe-area-inset-bottom));color:inherit;opacity:.6;font:13px system-ui,sans-serif;text-decoration:underline}
+#lien-perso{position:fixed;z-index:3;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));white-space:nowrap;background:#ffffffe6;color:#111827;font:600 16px system-ui,sans-serif;text-decoration:none;border-radius:24px;padding:10px 20px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
 #btn-son-off{position:fixed;z-index:3;left:12px;top:max(14px,env(safe-area-inset-top));background:rgba(0,0,0,.4);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:7px 14px;font-size:14px;cursor:pointer;backdrop-filter:blur(4px);animation:clignote 2s ease-in-out infinite}
 @keyframes clignote{50%{opacity:.55}}
 #toast{position:fixed;z-index:10;left:50%;bottom:max(90px,calc(env(safe-area-inset-bottom) + 80px));transform:translateX(-50%);background:#111827ee;color:#fff;border-radius:20px;padding:10px 18px;font-size:.95rem;box-shadow:0 4px 18px rgba(0,0,0,.4)}
@@ -132,7 +132,7 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
   <nav id="points-vues"></nav>
   <button id="btn-son-off" hidden>🔇 Touche l'écran pour le son</button>
   <small id="signature">Joe Dilmijian · octobre 2026</small>
-  <a id="lien-perso" href="./" hidden>Crée ton propre compteur</a>
+  <a id="lien-perso" href="./" hidden>✨ Crée ton propre compteur</a>
 </main>
 <div id="toast" hidden></div>
 
@@ -961,12 +961,18 @@ function maj() {
 function dimensionner(n, maxChiffres) {
   if (!n) return;
   const W = innerWidth, H = innerHeight, gap = W * 0.03;
+  // Hauteur disponible = écran moins titre, date, message, marges et points de navigation
+  const hors = ['.titre', '.cible', '.message'].reduce((t, sel) => {
+    const el = etat.scene.querySelector(sel); if (!el || !el.textContent) return t;
+    const cs = getComputedStyle(el); return t + el.offsetHeight + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
+  }, 0);
+  const dispo = Math.max(60, H - hors - 32 - 40);
   const largeurChiffre = etat.v.style === 'flip' ? 1.05 : 0.9;
   let best = { taille: 0, cols: n };
   for (let cols = n; cols >= 1; cols--) {
     const rows = Math.ceil(n / cols);
     const sw = ((W * 0.92 - (cols - 1) * gap) / cols) / (maxChiffres * largeurChiffre);
-    const sh = (H * 0.58 - (rows - 1) * 16 - rows * 30) / (rows * 1.15);
+    const sh = (dispo - (rows - 1) * 16 - rows * 30) / (rows * 1.15);
     const t = Math.min(sw, sh, 170);
     if (t > best.taille * 1.05) best = { taille: t, cols };
   }
