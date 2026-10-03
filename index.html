@@ -64,10 +64,15 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
 .polaroid img{display:block;max-width:min(70vw,440px);max-height:36vh;object-fit:cover}
 @keyframes polaroid{from{transform:scale(0) rotate(-200deg)}to{transform:rotate(-3deg)}}
 @keyframes apparition{from{opacity:0}}
-#lien-perso{position:fixed;z-index:4;left:50%;transform:translateX(-50%);bottom:max(18px,calc(env(safe-area-inset-bottom) + 8px));white-space:nowrap;background:linear-gradient(135deg,#f97316,#ec4899);color:#fff;font:700 19px system-ui,sans-serif;text-decoration:none;border:2px solid #fff;border-radius:30px;padding:13px 26px;box-shadow:0 6px 24px rgba(0,0,0,.5);animation:appel 2.4s ease-in-out infinite}
-@keyframes appel{50%{transform:translateX(-50%) scale(1.06)}}
+#lien-perso{touch-action:manipulation;cursor:pointer;position:fixed;z-index:4;left:50%;transform:translateX(-50%);bottom:max(18px,calc(env(safe-area-inset-bottom) + 8px));white-space:nowrap;background:linear-gradient(135deg,#f97316,#ec4899);color:#fff;font:700 19px system-ui,sans-serif;text-decoration:none;border:2px solid #fff;border-radius:30px;padding:13px 26px;box-shadow:0 6px 24px rgba(0,0,0,.5);animation:appel 2.4s ease-in-out infinite}
+@keyframes appel{50%{box-shadow:0 0 0 8px rgba(236,72,153,.35),0 6px 24px rgba(0,0,0,.5)}}
 #btn-son-off{position:fixed;z-index:3;left:12px;top:max(14px,env(safe-area-inset-top));background:rgba(0,0,0,.4);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:7px 14px;font-size:14px;cursor:pointer;backdrop-filter:blur(4px);animation:clignote 2s ease-in-out infinite}
 @keyframes clignote{50%{opacity:.55}}
+.aide-ios{position:fixed;z-index:4;left:50%;transform:translateX(-50%);bottom:max(30px,calc(env(safe-area-inset-bottom) + 22px));width:min(92vw,440px);
+  background:#fef3c7;color:#78350f;border-radius:14px;padding:12px 40px 12px 14px;font:15px/1.35 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.45)}
+.aide-ios.carte{position:relative;left:auto;bottom:auto;transform:none;width:auto;margin-bottom:14px;box-shadow:none}
+.aide-ios b{font-weight:700}
+.aide-ios button{position:absolute;top:6px;right:8px;background:none;border:0;font-size:20px;color:#78350f;cursor:pointer;padding:4px}
 #toast{position:fixed;z-index:10;left:50%;bottom:max(90px,calc(env(safe-area-inset-bottom) + 80px));transform:translateX(-50%);background:#111827ee;color:#fff;border-radius:20px;padding:10px 18px;font-size:.95rem;box-shadow:0 4px 18px rgba(0,0,0,.4)}
 .photo-form{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .photo-form img{width:72px;height:72px;object-fit:cover;border-radius:6px}
@@ -133,6 +138,7 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
   <nav id="points-vues"></nav>
   <button id="btn-son-off" hidden>🔇 Touche l'écran pour le son</button>
   <small id="signature">Joe Dilmijian · octobre 2026</small>
+  <div id="aide-ios" class="aide-ios" hidden></div>
   <a id="lien-perso" href="./" hidden>✨ Crée ton propre compteur</a>
 </main>
 <div id="toast" hidden></div>
@@ -142,6 +148,7 @@ body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;overflow:
   <header><button id="btn-retour" class="btn-lien">← Retour</button><h2 id="titre-reglages">Mes compteurs</h2></header>
 
   <div id="ecran-liste">
+    <div id="aide-ios-reglages" class="aide-ios carte" hidden></div>
     <ul id="liste"></ul>
     <button id="btn-ajouter" class="btn large">+ Nouveau compteur</button>
     <div class="outils">
@@ -1058,7 +1065,7 @@ function changerVue(delta) {
 // Toucher = vue suivante ; balayage horizontal = compteur ; vertical = vue
 let p0 = null;
 $('#vue-compteur').addEventListener('pointerdown', e => {
-  p0 = e.target.closest('button') ? null : { x: e.clientX, y: e.clientY, sonCoupe: sonVoulu() && sonEtaitCoupe };
+  p0 = e.target.closest('button, a') ? null : { x: e.clientX, y: e.clientY, sonCoupe: sonVoulu() && sonEtaitCoupe };
 });
 $('#vue-compteur').addEventListener('pointerup', e => {
   if (!p0) return;
@@ -1353,6 +1360,21 @@ function assainir(o) {
       anim: parmi(fe.anim, Object.keys(ANIMS), 'feu'), photoMode: parmi(fe.photoMode, ['polaroid-flou', 'polaroid', 'fond'], 'polaroid-flou'), photo: false }
   });
 }
+// iPhone dans Safari : l'appli installée aura son propre stockage, il faut l'installer avant de créer ses compteurs
+const estIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+const estInstallee = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+function afficherAideIOS() {
+  if (!estIOS || estInstallee || modeLien) return;
+  const html = `📲 <b>Installe d'abord l'appli</b> : touche <b>Partager</b> ⬆︎ puis <b>« Sur l'écran d'accueil »</b>, et crée tes compteurs dedans.
+    Ceux créés ici dans Safari n'y seront pas.`;
+  const carte = $('#aide-ios-reglages'); carte.innerHTML = html; carte.hidden = false;
+  let ferme = false; try { ferme = sessionStorage.getItem('aideIOS') === '1'; } catch {}
+  if (ferme) return;
+  const b = $('#aide-ios'); b.innerHTML = html + '<button aria-label="Fermer">✕</button>'; b.hidden = false;
+  ['pointerdown', 'pointerup'].forEach(ev => b.addEventListener(ev, e => e.stopPropagation()));
+  b.querySelector('button').onclick = () => { b.hidden = true; try { sessionStorage.setItem('aideIOS', '1'); } catch {} };
+}
+
 // Partager : un simple lien qui contient le compteur
 async function partager(c) {
   const lien = location.origin + location.pathname + '?voir=' + await encoderCadeau(c);
@@ -1361,6 +1383,10 @@ async function partager(c) {
   navigator.clipboard.writeText(lien).then(() => toast('Lien copié ✓ Colle-le dans un message.'))
     .catch(() => prompt('Copie ce lien :', lien));
 }
+// « Crée ton propre compteur » : on part tout de suite, sans que le toucher soit pris pour un changement de vue
+const lienPerso = $('#lien-perso');
+['pointerdown', 'pointerup'].forEach(ev => lienPerso.addEventListener(ev, e => e.stopPropagation()));
+lienPerso.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); location.href = location.pathname; });
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(t._t); t._t = setTimeout(() => t.hidden = true, 3000); }
 
 // Ouverture d'un lien partagé : on montre l'événement, rien d'autre
@@ -1378,7 +1404,7 @@ async function voirLien(code) {
 construire(null);
 {
   const m = location.search.match(/[?&]voir=([zj][A-Za-z0-9_-]+)/);
-  if (m) voirLien(m[1]);
+  if (m) voirLien(m[1]); else afficherAideIOS();
 }
 (function boucle() { maj(); setTimeout(boucle, 1000 - (Date.now() % 1000) + 10); })();
 

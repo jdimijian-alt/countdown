@@ -1,5 +1,5 @@
 // Incrémenter la version à chaque déploiement pour forcer la mise à jour
-const CACHE = 'rebours-v19';
+const CACHE = 'rebours-v21';
 const FICHIERS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
