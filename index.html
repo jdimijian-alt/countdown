@@ -763,7 +763,8 @@ document.addEventListener('visibilitychange', () => {
   else majIndicateurSon();
 });
 let sonEtaitCoupe = true;
-['pointerdown', 'touchend', 'click', 'keydown'].forEach(ev => addEventListener(ev, () => {
+['pointerdown', 'touchend', 'click', 'keydown'].forEach(ev => addEventListener(ev, e => {
+  if (e.target.closest && e.target.closest('#lien-perso')) return;  // on quitte la page : inutile de débloquer le son
   if (ev === 'pointerdown') sonEtaitCoupe = !ac || ac.state !== 'running';
   if (!ac || ac.state !== 'running') debloquerAudio();
 }, { capture: true }));
@@ -1385,8 +1386,16 @@ async function partager(c) {
 }
 // « Crée ton propre compteur » : on part tout de suite, sans que le toucher soit pris pour un changement de vue
 const lienPerso = $('#lien-perso');
-['pointerdown', 'pointerup'].forEach(ev => lienPerso.addEventListener(ev, e => e.stopPropagation()));
-lienPerso.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); location.href = location.pathname; });
+// Sur iPhone, le « click » est souvent annulé quand la page bouge pendant le toucher (chiffres qui défilent) :
+// on part dès le relâchement du doigt, sans attendre le click.
+let lienParti = false;
+function partirVersAppli(e) {
+  e.preventDefault(); e.stopPropagation();
+  if (lienParti) return; lienParti = true;
+  location.href = location.pathname;
+}
+lienPerso.addEventListener('pointerdown', e => e.stopPropagation());
+['pointerup', 'touchend', 'click'].forEach(ev => lienPerso.addEventListener(ev, partirVersAppli));
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(t._t); t._t = setTimeout(() => t.hidden = true, 3000); }
 
 // Ouverture d'un lien partagé : on montre l'événement, rien d'autre
