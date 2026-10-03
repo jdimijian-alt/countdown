@@ -63,4 +63,4 @@ puis http://localhost:8000. Le service worker ne marche pas en ouvrant le fichie
 - **Lien partagé** : il contient tous les réglages du compteur, mais pas la photo.
 - **Musiques** : la Marseillaise et Aïda sont transcrites de mémoire et peuvent être approximatives.
 
-Joe Dilmijian · octobre 2026
+Joe Dimijian · octobre 2026
